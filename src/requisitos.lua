@@ -205,6 +205,15 @@ function R.reloj()
   return ("%02d:%02d:%02d"):format(math.floor(s / 3600), math.floor(s % 3600 / 60), s % 60)
 end
 
+--- Lo que falta para que se acabe, en MM:SS. El límite crece si pediste la
+--- prórroga en el minuto 30.
+function R.restante()
+  local limite = (R.base + (R.decision == "seguir" and R.prorroga or 0)) * 60
+  local s = math.floor(limite - R.segundos)
+  if s <= 0 then return "se acabó" end
+  return ("quedan %02d:%02d"):format(math.floor(s / 60), s % 60)
+end
+
 --- Los requisitos abiertos, en Markdown, listos para pegárselos a un agente.
 function R.comoTexto()
   if #R.lista == 0 then return "" end

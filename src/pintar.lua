@@ -38,6 +38,12 @@ function pintar.requisitos(R, copiado)
     -- la siguiente media hora.
     love.graphics.setColor(1, 1, 1)
     love.graphics.printf(R.reloj(), x + 14, y + 12, w - 28)
+    -- Lo que queda, al lado: el tiempo transcurrido informa, el que falta decide.
+    local quedan = R.restante()
+    love.graphics.setColor(quedan == "se acabó" and 0.9 or 0.55,
+                           quedan == "se acabó" and 0.45 or 0.62,
+                           quedan == "se acabó" and 0.35 or 0.75)
+    love.graphics.printf(("(%s)"):format(quedan), x + 90, y + 12, w - 28)
     love.graphics.setColor(0.55, 0.62, 0.75)
     love.graphics.printf(
       ("empezaste a las %s · tienes %d min%s"):format(
