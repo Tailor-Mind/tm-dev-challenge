@@ -35,6 +35,23 @@ que funcione, en el menor tiempo, y decir en voz alta lo que sacrificaste**.
 
 Usa la IA que quieras, y úsala todo lo que quieras. Te lo pedimos.
 
+## Primero el plan, y no cuenta tiempo
+
+Al arrancar con `--run` **no empieza el reloj**: lo primero que sale es tu plan.
+
+Cinco decisiones y una línea: quién escribe el código, quién escribe las pruebas,
+qué revisas de lo que te devuelve el agente, si pruebas a mano, a qué dedicas más
+de los 30 minutos, y qué vas a hacer cuando llegue algo que no cabe.
+
+Ninguna opción es la correcta. Delegar el código entero y no revisar nada es
+defendible si lo que entregas funciona; escribirlo todo a mano también, si te da
+tiempo. **El reloj arranca cuando sellas**, y el plan queda en `PLAN-SELLADO.md`,
+que va en la entrega.
+
+Lo que miramos después no es el plan: es **la distancia entre el plan y lo que
+pasó**. Nadie lo cumple entero. Lo que distingue es si la diferencia fue una
+decisión o un atropello — y si está dicha.
+
 ## Los 30 minutos, y la decisión
 
 ```
@@ -86,7 +103,8 @@ Un repo tuyo (o un ZIP, nos da igual) con:
 1. **El juego funcionando.** `love .` tiene que arrancar y jugarse. Si no
    arranca, no hay nada que mirar — y eso pasa más de lo que crees, así que
    pruébalo en limpio antes de mandarlo.
-2. **`SUPUESTOS.md`** — una línea por decisión que tuviste que tomar sin que el
+2. **`PLAN-SELLADO.md`**, tal como lo escribió el juego. No lo edites.
+3. **`SUPUESTOS.md`** — una línea por decisión que tuviste que tomar sin que el
    requisito la definiera. Este archivo es el documento, no el anexo.
 3. **`REQUISITOS-RECIBIDOS.md`**, tal como lo escribió el juego. No lo edites.
 4. **Lo que dejaste fuera, y por qué.** En el mismo `SUPUESTOS.md`, al final.

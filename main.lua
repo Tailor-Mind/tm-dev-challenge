@@ -14,12 +14,37 @@ local motor = require("src.motor")
 local pintar = require("src.pintar")
 local requisitos = require("src.requisitos")
 local decision = require("src.decision")
+local plan = require("src.plan")
 
 -- Cámbialo si te damos otra: es el endpoint del goteo.
 local ENDPOINT = os.getenv("TM_ENDPOINT") or
   "https://script.google.com/macros/s/AKfycbzAnxZy6WchTCI93EArs_-bHfEhOm0XoBSa7HhuLEgi6egs6KLzQ4miCovR7Y2A1GH5Ug/exec"
 
-local mundo, panel = nil, true
+local mundo, panel, correo = nil, true, nil
+
+--- Sella el plan, abre la partida y arranca el reloj. En ese orden.
+local function sellarYEmpezar()
+  local f = io.open("PLAN-SELLADO.md", "w")
+  if f then
+    f:write("# El plan que sellé antes de empezar
+
+")
+    for _, fila in ipairs(plan.filas) do
+      f:write(("- **%s**: %s
+"):format(fila.titulo, fila.opciones[fila.elegido]))
+    end
+    f:write(("
+**Cuando llegue algo que no cabe, voy a:** %s
+"):format(plan.noCabe))
+    f:write(("
+Sellado el %s.
+"):format(os.date("!%Y-%m-%d %H:%M UTC")))
+    f:close()
+  end
+  requisitos.empezar(ENDPOINT, correo)
+  requisitos.sellarPlan(plan.hoja(), plan.noCabe)
+  plan.activo = false
+end
 
 function love.load(args)
   for i, a in ipairs(args or {}) do
@@ -29,7 +54,9 @@ function love.load(args)
       return
     end
     if a == "--run" and args[i + 1] then
-      requisitos.empezar(ENDPOINT, args[i + 1])
+      -- El plan va primero y no gasta reloj: la partida se abre al sellarlo.
+      correo = args[i + 1]
+      plan.abrir()
     end
   end
   mundo = motor.nuevo(love.graphics.getWidth(), love.graphics.getHeight())
@@ -37,6 +64,10 @@ end
 
 function love.update(dt)
   if not mundo then return end
+  if plan.activo then
+    if plan.listo then sellarYEmpezar() end
+    return
+  end
   decision.actualizar(requisitos)
   if decision.bloquea() then return end
   -- dt con techo: si arrastras la ventana, el juego no se teletransporta.
@@ -51,16 +82,18 @@ end
 
 function love.draw()
   if not mundo then return end
+  if plan.activo then plan.dibujar(); return end
   pintar.mundo(mundo)
   if panel then pintar.requisitos(requisitos) end
   decision.dibujar(requisitos)
 end
 
 function love.textinput(t)
-  decision.texto(t)
+  if plan.activo then plan.texto(t) else decision.texto(t) end
 end
 
 function love.keypressed(tecla)
+  if plan.teclado(tecla) then return end
   if decision.teclado(tecla, requisitos) then return end
   decision.cerrarAviso()
   if tecla == "tab" then panel = not panel end

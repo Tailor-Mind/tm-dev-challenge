@@ -98,4 +98,15 @@ function R.decidir(eleccion, motivo)
   return cuerpo ~= nil
 end
 
+--- Sella el plan en el servidor. Si no hay red, no pasa nada: el plan ya quedó
+--- escrito en PLAN-SELLADO.md, que es lo que se entrega.
+function R.sellarPlan(hoja, noCabe)
+  if not R.run then return false end
+  local esc = function (t)
+    return (t or ""):gsub("[^%w%sáéíóúñÁÉÍÓÚÑ=;,.:¿?¡!%-]", ""):gsub("%s+", "%%20")
+  end
+  return pedir(R.url .. "?accion=plan&run=" .. R.run ..
+    "&hoja=" .. esc(hoja) .. "&cuando_no_cabe=" .. esc(noCabe)) ~= nil
+end
+
 return R
