@@ -17,7 +17,7 @@ function pintar.mundo(m)
   love.graphics.setColor(0.55, 0.6, 0.7)
   love.graphics.print(
     "flechas o A/D · espacio salta · R reinicia · C copia · E entrega ya · " ..
-    "F5 recarga (si se cierra, vuelve a abrir con `love .`) · TAB esconde el panel", 14, 12)
+    "F5 recarga tu código · TAB esconde el panel", 14, 12)
   love.graphics.setColor(1, 1, 1)
 end
 

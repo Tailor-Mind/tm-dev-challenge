@@ -211,20 +211,18 @@ están escritos en disco desde el minuto cero.
 
 ## Recargar tus cambios
 
-LÖVE no recarga en caliente: hay que reiniciar el juego para ver lo que tocaste.
-**F5 lo hace** — tarda menos de un segundo.
+**F5 recarga tu código sin reiniciar nada.** Se sueltan los módulos de `src/`
+que tocaste, se vuelven a cargar, y sigues en el mismo sitio: misma partida,
+mismo reloj, misma posición del personaje.
 
-Reiniciar no te cuesta nada del reto:
+Si lo que acabas de escribir no carga, **se queda el anterior** y te lo dice en
+pantalla. Nunca te deja sin juego por un paréntesis.
 
-- El reloj lo lleva el servidor, no el juego. Cerrar la ventana no lo para, y
-  volver a abrirla no lo reinicia.
-- Tu partida queda apuntada en `.tm-run`, así que al abrir otra vez **se reanuda
-  la misma**: no se abre una nueva, no pierdes los requisitos que ya llegaron, y
-  no vuelves a pasar por la pantalla del plan.
-- Vale `love .` a secas, sin repetir `--run`.
+Lo que no se recarga es la infraestructura del reto —el panel, el reloj, el
+goteo—: esa no se toca, y así no se puede romper lo que registra tu trabajo.
 
-Si el juego revienta por un error tuyo, pasa lo mismo: lo arreglas, lo vuelves a
-abrir y sigues donde estabas.
+Y si cierras la ventana, `love .` retoma la partida: el reloj lo lleva el
+servidor y el identificador está en `.tm-run`.
 
 ## Cómo está montado
 

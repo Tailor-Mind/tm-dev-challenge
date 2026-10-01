@@ -12,6 +12,7 @@
   atraviesa el suelo. A partir de ahí, los requisitos van llegando solos.
 ]]
 
+-- `motor` y `pintar` no son locales fijos: F5 los vuelve a cargar.
 local motor = require("src.motor")
 local pintar = require("src.pintar")
 local requisitos = require("src.requisitos")
@@ -27,6 +28,53 @@ local copiado = 0        -- segundos que queda el aviso en pantalla
 local copiadoQue = ""    -- qué se copió, para decirlo en el aviso
 local fallo = nil        -- el último error de tu código, si lo hubo
 local falloRed = nil     -- y el del panel, que nunca debería tumbar la partida
+local recargado = 0      -- segundos que queda el aviso de recarga
+
+--[[
+  F5: recargar tu código sin reiniciar la partida.
+
+  Antes esto llamaba a `love.event.quit("restart")`, que según la versión de LÖVE
+  reinicia… o cierra y ya. Y aunque reinicie, tira el hilo de red y vuelve a
+  pedirle todo al servidor.
+
+  Esto es mejor: se sueltan los módulos tuyos, se vuelven a cargar, y el reloj,
+  el panel y la partida siguen intactos porque ni se enteran. Si lo que cargas
+  está roto, se queda el anterior y te lo dice: nunca te deja sin juego.
+]]
+local INFRA = {
+  ["src.requisitos"] = true, ["src.plan"] = true, ["src.decision"] = true,
+  ["src.json"] = true, ["src.hilo_red"] = true,
+}
+
+local function recargar()
+  local sueltos = {}
+  for nombre in pairs(package.loaded) do
+    if type(nombre) == "string" and nombre:match("^src%.") and not INFRA[nombre] then
+      sueltos[#sueltos + 1] = nombre
+    end
+  end
+  local copia = {}
+  for _, n in ipairs(sueltos) do copia[n] = package.loaded[n]; package.loaded[n] = nil end
+
+  local ok, err = pcall(function ()
+    motor = require("src.motor")
+    pintar = require("src.pintar")
+    local nuevo = motor.nuevo(love.graphics.getWidth(), love.graphics.getHeight())
+    -- Se conserva dónde estabas: recargar no debería devolverte al principio.
+    if mundo and mundo.jugador and nuevo.jugador then
+      nuevo.jugador.x, nuevo.jugador.y = mundo.jugador.x, mundo.jugador.y
+    end
+    mundo = nuevo
+  end)
+
+  if not ok then
+    -- Vuelta atrás: con el módulo roto fuera, el juego sigue siendo jugable.
+    for n, m in pairs(copia) do package.loaded[n] = m end
+    fallo = "al recargar: " .. tostring(err)
+    return
+  end
+  fallo, recargado = nil, 1.5
+end
 
 --- Sella el plan, abre la partida y arranca el reloj. En ese orden.
 local function sellarYEmpezar()
@@ -78,6 +126,7 @@ function love.update(dt)
     return
   end
   if copiado > 0 then copiado = copiado - dt end
+  if recargado > 0 then recargado = recargado - dt end
   decision.actualizar(requisitos)
 
   -- El reloj y el envío van **antes** que el juego y fuera de su suerte: si lo
@@ -126,6 +175,11 @@ function love.draw()
     love.graphics.setColor(1, 1, 1)
   end
 
+  if recargado > 0 then
+    love.graphics.setColor(0.5, 0.85, 0.6)
+    love.graphics.print("recargado", 14, 34)
+    love.graphics.setColor(1, 1, 1)
+  end
   if panel then pintar.requisitos(requisitos, copiado > 0 and copiadoQue or nil) end
   decision.dibujar(requisitos)
 end
@@ -161,10 +215,7 @@ function love.keypressed(tecla)
       copiado, copiadoQue = 2.5, "todos"
     end
   end
-  -- LÖVE no recarga en caliente. F5 reinicia el juego entero, que tarda menos de
-  -- un segundo: tus cambios entran y la partida sigue donde estaba, porque el
-  -- reloj lo lleva el servidor y el identificador está en `.tm-run`.
-  if tecla == "f5" then love.event.quit("restart") end
+  if tecla == "f5" then recargar() end
   if tecla == "escape" then love.event.quit() end
 end
 
