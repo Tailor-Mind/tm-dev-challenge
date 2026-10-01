@@ -12,6 +12,11 @@ qué preguntas y qué escribes cuando el enunciado no lo dice. Dicho de otra
 forma: lo mejor que puedes hacer es entregar **la mayor cantidad de software
 que funcione, en el menor tiempo, y decir en voz alta lo que sacrificaste**.
 
+> **Primera versión.** Este reto se estrena con esta tanda. Los requisitos, los
+> tiempos y lo que pedimos van a cambiar con lo que aprendamos de las primeras
+> entregas — y lo decimos por delante porque es lo justo: si algo te parece mal
+> medido o mal explicado, dilo en tu entrega. Eso cuenta a favor, no en contra.
+
 ## Qué necesitas
 
 Windows, macOS o Linux, da igual:
