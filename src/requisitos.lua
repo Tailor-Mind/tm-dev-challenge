@@ -184,6 +184,14 @@ function R.refrescar(dt)
         elseif d.ok == false then
           R.error = d.error or "el servidor dijo que no"
           if msg.etiqueta == "empezar" then R.estado = "sin partida" end
+          -- Una partida que el servidor no conoce no se arregla reintentando:
+          -- se deja de preguntar y se dice qué hacer, en vez de insistir cada
+          -- veinte segundos con un error que parece de red y no lo es.
+          if (d.error or ""):find("no conozco esa partida") then
+            R.estado, R.run = "sin partida", nil
+            R.error = "esa partida ya no existe. Borra `.tm-run` y vuelve a abrir " ..
+                      "con `love . --run TU@CORREO --clave TU_CLAVE`"
+          end
         else
           R.error = nil
           aplicar(msg.etiqueta, d)
