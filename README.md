@@ -126,20 +126,32 @@ acotarlo con un test, o dejarlo escrito en `SUPUESTOS.md` y seguir con lo tuyo.
 Cualquiera de las tres está bien. Lo que no, es construir encima sin mirar y que
 acabe en tu entrega con tu nombre.
 
-## Los skills, por si trabajas con un agente
+## Postular: se hace desde aquí
 
-En `skills/` hay dos, listos para que los lea tu asistente:
+Clonas, abres tu agente en esta carpeta y escribes:
 
-- **`tm-apply`** — postular desde la terminal, sin abrir el formulario.
-- **`tm-reto`** — preguntar al servidor qué requisitos han llegado, cuánto queda,
-  y registrar la decisión del minuto 30.
+```
+/tm-apply
+```
 
-No hace falta usarlos: el formulario y el panel del juego hacen lo mismo. Están
-porque a quien trabaja con agentes le sale más natural así, y porque leerlos te
-dice exactamente qué se puede pedir al servidor y qué no.
+Eso es todo. El repo trae el skill en `.claude/skills/tm-apply/`, así que tu
+agente lo ve nada más abrirlo. Te va a pedir tus datos y, sobre todo, **la
+especificación con la que arrancarías este reto**, que es lo que de verdad
+leemos. Te devuelve tu clave: guárdala, sin ella no se abre la partida.
 
-Spoiler de lo que no se puede: pedir requisitos por adelantado, pedir más de los
-que te tocaron, y volver a tirar los dados.
+Funciona con Claude Code tal cual. Si usas otro asistente, ábrele
+`.claude/skills/tm-apply/SKILL.md` y pídele que lo siga — es un fichero de texto
+con un `curl` dentro, no hay magia.
+
+¿Y si no quieres usar un agente para postular? Está el
+[formulario](https://tailor-mind.github.io/tm-team-pub/es/apply/) y no resta
+nada. Pero el puesto consiste en dirigir agentes, así que empezar por ahí dice
+algo de cómo trabajas — y nosotros lo apuntamos.
+
+El otro skill es **`/tm-reto`**: pregunta al servidor qué requisitos llegaron,
+cuánto queda y registra la decisión del minuto 30. Léelo aunque no lo uses: dice
+exactamente qué se le puede pedir al servidor y qué no. Lo que **no** se puede:
+requisitos por adelantado, más de los que te tocaron, y volver a tirar los dados.
 
 ## Recargar tus cambios
 
