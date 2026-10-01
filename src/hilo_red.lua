@@ -23,11 +23,38 @@ local ffi_ok, ffi = pcall(require, "ffi")
 
 local esWindows = package.config:sub(1, 1) == "\\"
 
+--[[
+  Lanzar un proceso en Windows sin que aparezca una consola.
+
+  `ShellExecute` con SW_HIDE no basta: si la consola por defecto es Windows
+  Terminal, re-aloja el proceso en una pestaña nueva y la ventana sale igual.
+  Lo único que Windows respeta siempre es crear el proceso con
+  CREATE_NO_WINDOW, que es lo que hace esto.
+]]
 if ffi_ok and esWindows then
   pcall(ffi.cdef, [[
-    int ShellExecuteA(void *hwnd, const char *op, const char *file,
-                      const char *params, const char *dir, int show);
-    void Sleep(unsigned long ms);
+    typedef struct {
+      unsigned long  cb;
+      char          *lpReserved;
+      char          *lpDesktop;
+      char          *lpTitle;
+      unsigned long  dwX, dwY, dwXSize, dwYSize;
+      unsigned long  dwXCountChars, dwYCountChars, dwFillAttribute, dwFlags;
+      unsigned short wShowWindow, cbReserved2;
+      unsigned char *lpReserved2;
+      void          *hStdInput, *hStdOutput, *hStdError;
+    } STARTUPINFOA;
+
+    typedef struct {
+      void *hProcess, *hThread;
+      unsigned long dwProcessId, dwThreadId;
+    } PROCESS_INFORMATION;
+
+    int CreateProcessA(const char *app, char *cmd, void *procAttr, void *threadAttr,
+                       int heredar, unsigned long flags, void *entorno, const char *dir,
+                       STARTUPINFOA *si, PROCESS_INFORMATION *pi);
+    unsigned long WaitForSingleObject(void *handle, unsigned long ms);
+    int CloseHandle(void *handle);
   ]])
 end
 
@@ -36,31 +63,37 @@ local function temporal()
   return dir .. "\\tm-reto-" .. tostring(math.random(1e9)) .. ".json"
 end
 
---- `curl` sin ventana. Devuelve el cuerpo, o nil y el motivo.
+local CREATE_NO_WINDOW = 0x08000000
+
+--- `curl` sin ventana, de verdad. Devuelve el cuerpo, o nil y el motivo.
 local function porCurlOculto(url)
   local salida = temporal()
-  local shell32 = ffi.load("shell32")
-  local comando = '/c curl -sSL --max-time 15 "' .. url .. '" -o "' .. salida .. '"'
-  -- 0 = SW_HIDE: nada de consola parpadeando encima del juego.
-  shell32.ShellExecuteA(nil, "open", "cmd.exe", comando, nil, 0)
-
-  -- No hay a quién esperar, así que se espera al fichero. 15 s de techo, igual
-  -- que el que lleva curl.
   local kernel32 = ffi.load("kernel32")
-  for _ = 1, 150 do
-    kernel32.Sleep(100)
-    local f = io.open(salida, "r")
-    if f then
-      local cuerpo = f:read("*a")
-      f:close()
-      if cuerpo and cuerpo ~= "" then
-        os.remove(salida)
-        return cuerpo
-      end
-    end
-  end
+
+  local linea = 'cmd.exe /c curl -sSL --max-time 15 "' .. url .. '" -o "' .. salida .. '"'
+  -- CreateProcess escribe sobre la línea de comandos, así que tiene que ser un
+  -- buffer mutable y no una cadena de Lua.
+  local buf = ffi.new("char[?]", #linea + 1)
+  ffi.copy(buf, linea)
+
+  local si = ffi.new("STARTUPINFOA")
+  si.cb = ffi.sizeof("STARTUPINFOA")
+  local pi = ffi.new("PROCESS_INFORMATION")
+
+  local ok = kernel32.CreateProcessA(nil, buf, nil, nil, 0, CREATE_NO_WINDOW, nil, nil, si, pi)
+  if ok == 0 then return nil, "no pude lanzar curl" end
+
+  kernel32.WaitForSingleObject(pi.hProcess, 20000)
+  kernel32.CloseHandle(pi.hProcess)
+  kernel32.CloseHandle(pi.hThread)
+
+  local f = io.open(salida, "r")
+  if not f then return nil, "curl no dejó respuesta. ¿Está instalado? (`curl --version`)" end
+  local cuerpo = f:read("*a")
+  f:close()
   os.remove(salida)
-  return nil, "la petición no respondió a tiempo"
+  if not cuerpo or cuerpo == "" then return nil, "el servidor no respondió a tiempo" end
+  return cuerpo
 end
 
 --- `curl` por tubería. En macOS y Linux no abre ninguna ventana, así que aquí no
