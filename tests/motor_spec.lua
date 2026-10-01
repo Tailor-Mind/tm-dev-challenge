@@ -43,4 +43,39 @@ return function (t)
     m:actualizar(1 / 60, {})
     esperar(m.jugador.y == m.inicio.y, "vuelve donde empezó")
   end)
+
+  -- Apoyado encima de la plataforma `p`, no solo a su altura.
+  local function sobre(m, p)
+    local j = m.jugador
+    return j.enSuelo and j.y + j.h == p.y and j.x + j.w > p.x and j.x < p.x + p.w
+  end
+
+  t("desde el suelo se sube a la primera plataforma", function (esperar)
+    local m = motor.nuevo()
+    local p1 = m.plataformas[2]
+    for _ = 1, 200 do m:actualizar(1 / 60, {}) end
+    local llego = false
+    for _ = 1, 600 do
+      m:actualizar(1 / 60, { derecha = true, saltar = true })
+      if sobre(m, p1) then llego = true; break end
+    end
+    esperar(llego, "saltando hacia la derecha tendría que acabar encima")
+  end)
+
+  t("desde la primera plataforma se sube a la segunda", function (esperar)
+    local m = motor.nuevo()
+    local p1, p2 = m.plataformas[2], m.plataformas[3]
+    local j = m.jugador
+    -- Colocado en el borde derecho de la primera, ya apoyado.
+    j.x, j.y, j.vy = p1.x + p1.w - j.w, p1.y - j.h, 0
+    m:actualizar(1 / 60, {})
+    esperar(sobre(m, p1), "empieza apoyado en la primera")
+    local llego = false
+    m:actualizar(1 / 60, { derecha = true, saltar = true })
+    for _ = 1, 120 do
+      m:actualizar(1 / 60, { derecha = true })
+      if sobre(m, p2) then llego = true; break end
+    end
+    esperar(llego, "un salto hacia la derecha tendría que dejarlo encima")
+  end)
 end

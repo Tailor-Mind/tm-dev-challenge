@@ -23,8 +23,10 @@ function motor.nuevo(ancho, alto)
   m.jugador = { x = 80, y = 100, vx = 0, vy = 0, w = 28, h = 36, enSuelo = false }
   m.plataformas = {
     { x = 0,   y = m.alto - 40, w = m.ancho, h = 40 },   -- el suelo
-    { x = 220, y = m.alto - 150, w = 180, h = 18 },
-    { x = 520, y = m.alto - 250, w = 200, h = 18 },
+    -- Cada escalón sube 90 px: el salto llega a unos 107 (IMPULSO² / 2·GRAVEDAD),
+    -- así que con más de eso la plataforma se ve pero no se alcanza.
+    { x = 220, y = m.alto - 130, w = 180, h = 18 },
+    { x = 480, y = m.alto - 220, w = 200, h = 18 },
   }
   m.inicio = { x = m.jugador.x, y = m.jugador.y }
   return m
