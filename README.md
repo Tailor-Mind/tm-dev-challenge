@@ -126,6 +126,21 @@ acotarlo con un test, o dejarlo escrito en `SUPUESTOS.md` y seguir con lo tuyo.
 Cualquiera de las tres está bien. Lo que no, es construir encima sin mirar y que
 acabe en tu entrega con tu nombre.
 
+## Los skills, por si trabajas con un agente
+
+En `skills/` hay dos, listos para que los lea tu asistente:
+
+- **`tm-apply`** — postular desde la terminal, sin abrir el formulario.
+- **`tm-reto`** — preguntar al servidor qué requisitos han llegado, cuánto queda,
+  y registrar la decisión del minuto 30.
+
+No hace falta usarlos: el formulario y el panel del juego hacen lo mismo. Están
+porque a quien trabaja con agentes le sale más natural así, y porque leerlos te
+dice exactamente qué se puede pedir al servidor y qué no.
+
+Spoiler de lo que no se puede: pedir requisitos por adelantado, pedir más de los
+que te tocaron, y volver a tirar los dados.
+
 ## Recargar tus cambios
 
 LÖVE no recarga en caliente: hay que reiniciar el juego para ver lo que tocaste.
