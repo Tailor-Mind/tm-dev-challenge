@@ -1,10 +1,10 @@
 # El reto — TailorMind
 
-Un juego de plataformas en Lua, en 45 minutos, con los requisitos llegando
-mientras trabajas.
+Un juego de plataformas en Lua, en **30 a 45 minutos**, con los requisitos
+llegando mientras trabajas.
 
 **No caben.** Está hecho así a propósito: van a llegar más cosas de las que se
-pueden hacer bien en 45 minutos, y algunas se contradicen entre sí. Intentarlo
+pueden hacer bien en ese rato, y algunas se contradicen entre sí. Intentarlo
 todo y entregar el juego roto es el peor resultado posible.
 
 No medimos cuántos haces. Medimos **qué decides**: qué entra, qué dejas fuera,
@@ -35,7 +35,7 @@ que funcione, en el menor tiempo, y decir en voz alta lo que sacrificaste**.
 
 Usa la IA que quieras, y úsala todo lo que quieras. Te lo pedimos.
 
-## Los 45 minutos
+## Los 30 a 45 minutos
 
 ```
 love . --run TU@CORREO
@@ -48,9 +48,10 @@ Eso abre tu partida. A partir de ahí:
 - Los requisitos **no están en este repo** y **no se pueden pedir por
   adelantado**. Tampoco puedes pedir más: los que te tocan son los que te tocan,
   y cada candidato recibe un sorteo distinto.
-- Dura **45 minutos**. Cuando se acaba, se acaba: lo que esté sin terminar,
-  queda sin terminar. El último requisito llega en el minuto 41, cuando ya no da
-  tiempo — eso también es parte del ejercicio.
+- Dura **entre 30 y 45 minutos**: paras cuando quieras dentro de esa ventana, y
+  entregas lo que haya. **Todos los requisitos llegan dentro de los primeros 28
+  minutos**, así que nadie se queda sin ver los suyos por parar antes; el último
+  cae cuando ya no da tiempo a hacerlo, y eso también es parte del ejercicio.
 
 Si te quedas sin red, el juego sigue con lo último que bajó y te lo dice. Vuelve
 a haber red, vuelve a haber requisitos: no se pierde nada.
@@ -115,7 +116,7 @@ En este orden:
    preguntarlo, o dejar escrito lo que asumiste.
 3. **Que arranque y se juegue.** Sin ceremonia: `love .` y ya.
 4. **El código**, al final. Si se lee y las pruebas pasan, está bien. No estamos
-   buscando arquitectura de astronauta en 45 minutos.
+   buscando arquitectura de astronauta en media hora.
 
 Y una última, que es la que más pesa: **software entregado por minuto gastado**.
 Tres cosas terminadas, probadas y jugables valen más que siete a medias — y
