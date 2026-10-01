@@ -20,7 +20,11 @@ local R = {
   base = 30, prorroga = 10, decision = "", error = nil, via = nil,
   -- El reloj lo lleva el servidor, pero entre consulta y consulta corre aquí:
   -- un número que solo se mueve cada veinte segundos no es un cronómetro.
-  segundos = 0, empezadoEn = nil, horaInicio = nil,
+  --
+  -- `sincronizado` existe porque al reanudar no sabemos nada hasta que llega la
+  -- primera respuesta: contar desde cero mientras tanto enseñaría 00:00:03 en una
+  -- partida de media hora, y un reloj que miente es peor que no tener reloj.
+  segundos = 0, empezadoEn = nil, horaInicio = nil, sincronizado = false,
   estado = "sin partida",   -- sin partida | abriendo | en marcha
   ultima = 0,
 }
@@ -140,6 +144,7 @@ local function aplicar(etiqueta, d)
     R.empezadoEn = d.empezadoEn or R.empezadoEn
     R.horaInicio = horaDe(R.empezadoEn) or R.horaInicio
     R.segundos = (d.minutos or 0) * 60
+    R.sincronizado = true
     anotar(("# Requisitos recibidos\n\npartida `%s` · abierta el %s\n")
       :format(R.run, os.date("!%Y-%m-%d %H:%M UTC")))
     anotarNuevos(R.lista, R.minutos)
@@ -152,9 +157,10 @@ local function aplicar(etiqueta, d)
     R.horaInicio = horaDe(R.empezadoEn) or R.horaInicio
     -- El servidor manda minutos enteros; se resincroniza sin perder los
     -- segundos que ya iban contados dentro de ese minuto.
-    if math.abs(R.segundos - (d.minutos or 0) * 60) > 70 then
+    if not R.sincronizado or math.abs(R.segundos - (d.minutos or 0) * 60) > 70 then
       R.segundos = (d.minutos or 0) * 60
     end
+    R.sincronizado = true
     R.base, R.prorroga = d.base or R.base, d.prorroga or R.prorroga
     R.decision = d.decision or R.decision
     anotarNuevos(R.lista, R.minutos)
@@ -189,9 +195,12 @@ function R.refrescar(dt)
 
   if R.estado ~= "en marcha" or not R.run then return end
 
-  -- El cronómetro corre aquí entre consulta y consulta.
-  R.segundos = R.segundos + dt
-  R.minutos = math.floor(R.segundos / 60)
+  -- El cronómetro corre aquí entre consulta y consulta, pero solo después de
+  -- saber por dónde va: antes de la primera respuesta no hay nada que contar.
+  if R.sincronizado then
+    R.segundos = R.segundos + dt
+    R.minutos = math.floor(R.segundos / 60)
+  end
 
   R.ultima = R.ultima + dt
   if R.ultima < 20 then return end

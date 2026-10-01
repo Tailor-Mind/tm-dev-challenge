@@ -46,9 +46,9 @@ function pintar.requisitos(R, copiado)
     -- El reloj primero y grande: es el dato que gobierna todas las decisiones de
     -- la siguiente media hora.
     love.graphics.setColor(1, 1, 1)
-    love.graphics.printf(R.reloj(), x + 14, y + 12, w - 28)
+    love.graphics.printf(R.sincronizado and R.reloj() or "--:--:--", x + 14, y + 12, w - 28)
     -- Lo que queda, al lado: el tiempo transcurrido informa, el que falta decide.
-    local quedan = R.restante()
+    local quedan = R.sincronizado and R.restante() or "preguntando al servidor"
     love.graphics.setColor(quedan == "se acabó" and 0.9 or 0.55,
                            quedan == "se acabó" and 0.45 or 0.62,
                            quedan == "se acabó" and 0.35 or 0.75)
@@ -56,11 +56,12 @@ function pintar.requisitos(R, copiado)
     love.graphics.setColor(0.55, 0.62, 0.75)
     love.graphics.printf(
       ("empezaste a las %s · tienes %d min%s"):format(
-        R.horaInicio or "??:??", R.base,
+        R.horaInicio or "—", R.base,
         R.decision == "seguir" and (" + " .. R.prorroga) or ""),
       x + 14, y + 34, w - 28)
     love.graphics.printf(
-      ("%s · quedan %d por llegar"):format(R.run, R.pendientes),
+      R.sincronizado and ("%s · quedan %d por llegar"):format(R.run, R.pendientes)
+        or (R.run .. " · sincronizando…"),
       x + 14, y + 52, w - 28)
     love.graphics.setColor(0.45, 0.55, 0.7)
     love.graphics.printf("1-9 copia uno · C copia todos · rueda para bajar · REQUISITOS-RECIBIDOS.md",
