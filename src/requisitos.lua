@@ -32,6 +32,32 @@ local function json(txt)
   return ok and v or nil
 end
 
+--- Deja constancia en el repo de qué llegó y cuándo. Va en la entrega.
+local function anotar(linea)
+  local f = io.open("REQUISITOS-RECIBIDOS.md", "a")
+  if not f then return end
+  f:write(linea, "
+")
+  f:close()
+end
+
+local vistos = {}
+
+local function anotarNuevos(lista, minutos)
+  for _, r in ipairs(lista or {}) do
+    if not vistos[r.id] then
+      vistos[r.id] = true
+      anotar(("
+## [%s] %s
+
+*llegó en el minuto %d · %s*
+
+%s")
+        :format(r.id, r.titulo, minutos, r.tipo or "feature", r.cuerpo))
+    end
+  end
+end
+
 function R.empezar(url, candidato)
   R.url = url
   local cuerpo, err = pedir(url .. "?accion=empezar&candidato=" .. candidato)
@@ -40,6 +66,15 @@ function R.empezar(url, candidato)
   if not d or not d.ok then R.error = "respuesta rara del servidor"; return false end
   R.run, R.lista, R.minutos, R.pendientes = d.runId, d.requisitos or {}, d.minutos or 0, 0
   R.error = nil
+  -- El reloj arranca aquí y queda escrito. Lo que hubiera antes en el repo es
+  -- preparación; lo que cuenta empieza en este minuto, y así vale lo mismo
+  -- clonar hoy que clonar la semana pasada.
+  anotar(("# Requisitos recibidos
+
+partida `%s` · abierta el %s
+")
+    :format(R.run, os.date("!%Y-%m-%d %H:%M UTC")))
+  anotarNuevos(R.lista, 0)
   return true
 end
 
@@ -54,6 +89,7 @@ function R.refrescar(dt)
   if d and d.ok then
     R.lista, R.minutos, R.pendientes = d.requisitos or R.lista, d.minutos or R.minutos, d.pendientes or 0
     R.error = nil
+    anotarNuevos(R.lista, R.minutos)
   end
 end
 

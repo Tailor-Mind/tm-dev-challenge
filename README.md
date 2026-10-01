@@ -55,6 +55,25 @@ Eso abre tu partida. A partir de ahí:
 Si te quedas sin red, el juego sigue con lo último que bajó y te lo dice. Vuelve
 a haber red, vuelve a haber requisitos: no se pierde nada.
 
+Mientras corre, el juego va escribiendo `REQUISITOS-RECIBIDOS.md` con lo que te
+llegó y en qué minuto. **Ese archivo va en la entrega**: es tu copia de lo que
+te tocó, y la nuestra de contra qué te corregimos.
+
+## Por qué el reto no está en este repo
+
+Este repo es el **armazón**: el arranque que funciona, las pruebas y el panel.
+Nada más. Los requisitos se descargan cuando abres tu partida, se sortean por
+candidato y se sueltan con el reloj.
+
+El motivo es simple: que clonar esto hoy valga lo mismo que clonarlo la semana
+pasada. Si el reto estuviera aquí, quien lo mire antes tendría más tiempo que
+los demás, y entonces no estaríamos midiendo lo mismo en todos.
+
+Prepara el entorno todo lo que quieras antes: instala LÖVE, lee el código, toca
+el motor, practica con los de demo. Eso es tiempo tuyo y no cuenta. **Lo que
+corregimos empieza cuando abres la partida** — y los commits llevan hora, así
+que no hace falta que nadie se autocontrole: se ve solo.
+
 ## Qué entregas
 
 Un repo tuyo (o un ZIP, nos da igual) con:
@@ -64,9 +83,10 @@ Un repo tuyo (o un ZIP, nos da igual) con:
    pruébalo en limpio antes de mandarlo.
 2. **`SUPUESTOS.md`** — una línea por decisión que tuviste que tomar sin que el
    requisito la definiera. Este archivo es el documento, no el anexo.
-3. **Lo que dejaste fuera, y por qué.** En el mismo `SUPUESTOS.md`, al final.
+3. **`REQUISITOS-RECIBIDOS.md`**, tal como lo escribió el juego. No lo edites.
+4. **Lo que dejaste fuera, y por qué.** En el mismo `SUPUESTOS.md`, al final.
    Dejar algo fuera con un motivo escrito **puntúa más** que entregarlo a medias.
-4. Tus pruebas, si las escribiste. `love . --test` debería seguir en verde.
+5. Tus pruebas, si las escribiste. `love . --test` debería seguir en verde.
 
 ## Cómo está montado
 
