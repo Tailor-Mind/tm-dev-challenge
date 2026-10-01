@@ -111,6 +111,37 @@ Un repo tuyo (o un ZIP, nos da igual) con:
    Dejar algo fuera con un motivo escrito **puntúa más** que entregarlo a medias.
 5. Tus pruebas, si las escribiste. `love . --test` debería seguir en verde.
 
+## Esto no es código de confianza
+
+Este armazón se escribió rápido, como el código que vas a heredar en cualquier
+trabajo de verdad. No lo des por bueno porque venga de nosotros.
+
+Las pruebas que trae cubren el camino feliz y poco más. **Un test en verde dice
+que esa entrada concreta funciona, no que la función esté bien** — y eso vale
+tanto para lo que te damos como para lo que escribas tú.
+
+Si te topas con algo que no hace lo que dice, es decisión tuya: arreglarlo,
+acotarlo con un test, o dejarlo escrito en `SUPUESTOS.md` y seguir con lo tuyo.
+Cualquiera de las tres está bien. Lo que no, es construir encima sin mirar y que
+acabe en tu entrega con tu nombre.
+
+## Recargar tus cambios
+
+LÖVE no recarga en caliente: hay que reiniciar el juego para ver lo que tocaste.
+**F5 lo hace** — tarda menos de un segundo.
+
+Reiniciar no te cuesta nada del reto:
+
+- El reloj lo lleva el servidor, no el juego. Cerrar la ventana no lo para, y
+  volver a abrirla no lo reinicia.
+- Tu partida queda apuntada en `.tm-run`, así que al abrir otra vez **se reanuda
+  la misma**: no se abre una nueva, no pierdes los requisitos que ya llegaron, y
+  no vuelves a pasar por la pantalla del plan.
+- Vale `love .` a secas, sin repetir `--run`.
+
+Si el juego revienta por un error tuyo, pasa lo mismo: lo arreglas, lo vuelves a
+abrir y sigues donde estabas.
+
 ## Cómo está montado
 
 ```

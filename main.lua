@@ -26,19 +26,12 @@ local mundo, panel, correo = nil, true, nil
 local function sellarYEmpezar()
   local f = io.open("PLAN-SELLADO.md", "w")
   if f then
-    f:write("# El plan que sellé antes de empezar
-
-")
+    f:write("# El plan que sellé antes de empezar\n\n")
     for _, fila in ipairs(plan.filas) do
-      f:write(("- **%s**: %s
-"):format(fila.titulo, fila.opciones[fila.elegido]))
+      f:write(("- **%s**: %s\n"):format(fila.titulo, fila.opciones[fila.elegido]))
     end
-    f:write(("
-**Cuando llegue algo que no cabe, voy a:** %s
-"):format(plan.noCabe))
-    f:write(("
-Sellado el %s.
-"):format(os.date("!%Y-%m-%d %H:%M UTC")))
+    f:write(("\n**Cuando llegue algo que no cabe, voy a:** %s\n"):format(plan.noCabe))
+    f:write(("\nSellado el %s.\n"):format(os.date("!%Y-%m-%d %H:%M UTC")))
     f:close()
   end
   requisitos.empezar(ENDPOINT, correo)
@@ -54,11 +47,20 @@ function love.load(args)
       return
     end
     if a == "--run" and args[i + 1] then
-      -- El plan va primero y no gasta reloj: la partida se abre al sellarlo.
-      correo = args[i + 1]
-      plan.abrir()
+      -- Si ya hay partida abierta en este repo, se reanuda. Reiniciar el juego
+      -- para ver tus cambios no abre otra ni te devuelve el reloj a cero.
+      if not requisitos.reanudar(ENDPOINT) then
+        -- El plan va primero y no gasta reloj: la partida se abre al sellarlo.
+        correo = args[i + 1]
+        plan.abrir()
+      end
     end
   end
+  -- Aunque abras con `love .` a secas: si hay una partida en marcha en esta
+  -- carpeta, se reanuda. Lo contrario sería perder el panel por abrir el juego
+  -- sin acordarse del argumento.
+  if not requisitos.run and not plan.activo then requisitos.reanudar(ENDPOINT) end
+
   mundo = motor.nuevo(love.graphics.getWidth(), love.graphics.getHeight())
 end
 
@@ -98,6 +100,10 @@ function love.keypressed(tecla)
   decision.cerrarAviso()
   if tecla == "tab" then panel = not panel end
   if tecla == "r" then mundo:reiniciar() end
+  -- LÖVE no recarga en caliente. F5 reinicia el juego entero, que tarda menos de
+  -- un segundo: tus cambios entran y la partida sigue donde estaba, porque el
+  -- reloj lo lleva el servidor y el identificador está en `.tm-run`.
+  if tecla == "f5" then love.event.quit("restart") end
   if tecla == "escape" then love.event.quit() end
 end
 

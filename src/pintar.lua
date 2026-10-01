@@ -15,7 +15,7 @@ function pintar.mundo(m)
   love.graphics.rectangle("fill", j.x, j.y, j.w, j.h, 4)
 
   love.graphics.setColor(0.55, 0.6, 0.7)
-  love.graphics.print("flechas o A/D para moverte · espacio para saltar · R reinicia · TAB esconde el panel", 14, 12)
+  love.graphics.print("flechas o A/D · espacio salta · R reinicia la posición · F5 recarga tus cambios · TAB esconde el panel", 14, 12)
   love.graphics.setColor(1, 1, 1)
 end
 

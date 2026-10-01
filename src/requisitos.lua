@@ -53,6 +53,35 @@ local function anotarNuevos(lista, minutos)
   end
 end
 
+--- La partida vive en disco: reiniciar el juego no abre otra ni pierde el reloj.
+local MARCA = ".tm-run"
+
+function R.recordar()
+  local f = io.open(MARCA, "w")
+  if not f then return end
+  f:write(R.run or "")
+  f:close()
+end
+
+function R.reanudar(url)
+  local f = io.open(MARCA, "r")
+  if not f then return false end
+  local id = (f:read("*a") or ""):gsub("%s", "")
+  f:close()
+  if id == "" then return false end
+
+  R.url, R.run = url, id
+  local cuerpo = pedir(url .. "?accion=estado&run=" .. id)
+  if not cuerpo then R.error = "no pude hablar con el servidor; sigo con lo que hay"; return true end
+  local d = json(cuerpo)
+  if d and d.ok then
+    R.lista, R.minutos, R.pendientes = d.requisitos or {}, d.minutos or 0, d.pendientes or 0
+    R.base, R.prorroga, R.decision = d.base or 30, d.prorroga or 10, d.decision or ""
+    for _, r in ipairs(R.lista) do vistos[r.id] = true end   -- no se vuelven a anotar
+  end
+  return true
+end
+
 function R.empezar(url, candidato)
   R.url = url
   local cuerpo, err = pedir(url .. "?accion=empezar&candidato=" .. candidato)
@@ -68,6 +97,7 @@ function R.empezar(url, candidato)
   anotar(("# Requisitos recibidos\n\npartida `%s` · abierta el %s\n")
     :format(R.run, os.date("!%Y-%m-%d %H:%M UTC")))
   anotarNuevos(R.lista, 0)
+  R.recordar()
   return true
 end
 
