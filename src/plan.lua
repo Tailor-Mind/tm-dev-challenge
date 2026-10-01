@@ -31,11 +31,15 @@ P.filas = {
   { clave = "pruebas", titulo = "Las pruebas las escribe",
     opciones = { "mi agente", "yo a mano", "no voy a escribir" }, elegido = 1 },
   { clave = "revision", titulo = "Lo que me devuelve el agente lo reviso",
-    opciones = { "entero", "por encima", "no lo reviso" }, elegido = 1 },
+    opciones = { "entero", "por bloques de cambios", "por encima", "no lo reviso" }, elegido = 1 },
   { clave = "manual", titulo = "El juego lo pruebo a mano",
-    opciones = { "en cada cambio", "al final", "no me va a dar tiempo" }, elegido = 1 },
+    opciones = { "en cada cambio", "por bloques de cambios", "al final", "no me va a dar tiempo" },
+    elegido = 1 },
   { clave = "reparto", titulo = "De los 30 minutos, dedico más a",
     opciones = { "construir", "revisar lo construido", "repartirlo parejo" }, elegido = 1 },
+  { clave = "especificar", titulo = "Cuando llega un requisito, lo primero que hago",
+    opciones = { "se lo paso tal cual al agente", "lo reescribo como spec", "lo parto en pasos",
+                 "escribo la prueba primero" }, elegido = 1 },
 }
 
 function P.abrir()
@@ -51,10 +55,18 @@ function P.hoja()
 end
 
 --- Teclas. Devuelve true mientras la pantalla esté abierta: el juego no corre.
+--- La última línea es una fila más de la lista: se baja hasta ella con la flecha
+--- y se escribe ahí mismo. Antes había que adivinar que Enter abría el campo.
+local function enTexto() return P.fila > #P.filas end
+
 function P.teclado(tecla)
   if not P.activo then return false end
 
-  if P.escribiendo then
+  if tecla == "up" then P.fila = math.max(1, P.fila - 1); P.escribiendo = enTexto(); return true end
+  if tecla == "down" then P.fila = math.min(#P.filas + 1, P.fila + 1); P.escribiendo = enTexto(); return true end
+
+  if enTexto() then
+    P.escribiendo = true
     if tecla == "backspace" then
       P.noCabe = P.noCabe:sub(1, -2)
     elseif tecla == "return" and #P.noCabe > 0 then
@@ -64,14 +76,13 @@ function P.teclado(tecla)
     return true
   end
 
-  if tecla == "up" then P.fila = math.max(1, P.fila - 1) end
-  if tecla == "down" then P.fila = math.min(#P.filas, P.fila + 1) end
   if tecla == "left" or tecla == "right" then
     local f = P.filas[P.fila]
     local paso = (tecla == "right") and 1 or -1
     f.elegido = ((f.elegido - 1 + paso) % #f.opciones) + 1
   end
-  if tecla == "return" then P.escribiendo = true end
+  -- Enter desde cualquier fila salta al final, que es donde se cierra el plan.
+  if tecla == "return" then P.fila = #P.filas + 1; P.escribiendo = true end
   return true
 end
 

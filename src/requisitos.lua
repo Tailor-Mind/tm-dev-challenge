@@ -8,18 +8,43 @@
   Si no hay red, el juego sigue: se queda con lo último que bajó y lo dice.
 ]]
 
+--[[
+  Cómo se habla con el servidor.
+
+  LÖVE *debería* traer el módulo `https`, pero no todas las compilaciones lo
+  hacen, y descubrirlo a mitad de la prueba no es aceptable. Así que hay dos
+  caminos y se usa el que haya:
+
+    1. el módulo `https`, si existe
+    2. `curl`, que viene de serie en Windows 10+, macOS y casi todo Linux
+
+  No es elegante. Es que la prueba tiene que funcionar en la máquina que tenga
+  delante quien la hace, y eso vale más que la elegancia.
+]]
 local https_ok, https = pcall(require, "https")
 
 local R = { url = nil, run = nil, minutos = 0, lista = {}, pendientes = 0, error = nil, ultima = 0,
-            base = 30, prorroga = 10, decision = "" }
+            base = 30, prorroga = 10, decision = "", via = https_ok and "https" or "curl" }
+
+local function porCurl(url)
+  -- Las comillas dobles valen igual en cmd, en PowerShell y en sh.
+  local tuberia = io.popen('curl -sSL --max-time 15 "' .. url .. '"', "r")
+  if not tuberia then return nil, "no pude lanzar curl" end
+  local cuerpo = tuberia:read("*a")
+  tuberia:close()
+  if not cuerpo or cuerpo == "" then return nil, "curl no devolvió nada" end
+  if not cuerpo:find("{", 1, true) then return nil, "el servidor no devolvió JSON" end
+  return cuerpo
+end
 
 local function pedir(url)
-  if not https_ok then
-    return nil, "esta versión de LÖVE no trae el módulo https (hace falta 11.4+)"
+  if https_ok then
+    local code, cuerpo = https.request(url)
+    if code == 200 then return cuerpo end
+    -- Si el módulo está pero falla, se intenta por curl antes de rendirse.
+    R.via = "curl"
   end
-  local code, cuerpo = https.request(url)
-  if code ~= 200 then return nil, "el servidor respondió " .. tostring(code) end
-  return cuerpo
+  return porCurl(url)
 end
 
 --- Decodificador mínimo: lo justo para leer la respuesta del endpoint.

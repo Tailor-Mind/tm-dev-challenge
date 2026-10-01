@@ -43,6 +43,10 @@ function pintar.requisitos(R)
       dy = dy + 16 * #lineas + 14
     end
   end
+  if R.run then
+    love.graphics.setColor(0.4, 0.45, 0.55)
+    love.graphics.printf("vía " .. (R.via or "?"), x + 14, love.graphics.getHeight() - 34, w - 28)
+  end
   if R.error then
     love.graphics.setColor(0.9, 0.6, 0.3)
     love.graphics.printf("sin red: " .. R.error, x + 14, love.graphics.getHeight() - 60, w - 28)
