@@ -13,6 +13,7 @@
 local motor = require("src.motor")
 local pintar = require("src.pintar")
 local requisitos = require("src.requisitos")
+local decision = require("src.decision")
 
 -- Cámbialo si te damos otra: es el endpoint del goteo.
 local ENDPOINT = os.getenv("TM_ENDPOINT") or
@@ -36,6 +37,8 @@ end
 
 function love.update(dt)
   if not mundo then return end
+  decision.actualizar(requisitos)
+  if decision.bloquea() then return end
   -- dt con techo: si arrastras la ventana, el juego no se teletransporta.
   dt = math.min(dt, 1 / 30)
   mundo:actualizar(dt, {
@@ -50,9 +53,16 @@ function love.draw()
   if not mundo then return end
   pintar.mundo(mundo)
   if panel then pintar.requisitos(requisitos) end
+  decision.dibujar(requisitos)
+end
+
+function love.textinput(t)
+  decision.texto(t)
 end
 
 function love.keypressed(tecla)
+  if decision.teclado(tecla, requisitos) then return end
+  decision.cerrarAviso()
   if tecla == "tab" then panel = not panel end
   if tecla == "r" then mundo:reiniciar() end
   if tecla == "escape" then love.event.quit() end

@@ -1,7 +1,7 @@
 # El reto — TailorMind
 
-Un juego de plataformas en Lua, en **30 a 45 minutos**, con los requisitos
-llegando mientras trabajas.
+Un juego de plataformas en Lua, en **30 minutos** — con una decisión al final
+que puede darte 10 más. Los requisitos llegan mientras trabajas.
 
 **No caben.** Está hecho así a propósito: van a llegar más cosas de las que se
 pueden hacer bien en ese rato, y algunas se contradicen entre sí. Intentarlo
@@ -35,7 +35,7 @@ que funcione, en el menor tiempo, y decir en voz alta lo que sacrificaste**.
 
 Usa la IA que quieras, y úsala todo lo que quieras. Te lo pedimos.
 
-## Los 30 a 45 minutos
+## Los 30 minutos, y la decisión
 
 ```
 love . --run TU@CORREO
@@ -48,10 +48,14 @@ Eso abre tu partida. A partir de ahí:
 - Los requisitos **no están en este repo** y **no se pueden pedir por
   adelantado**. Tampoco puedes pedir más: los que te tocan son los que te tocan,
   y cada candidato recibe un sorteo distinto.
-- Dura **entre 30 y 45 minutos**: paras cuando quieras dentro de esa ventana, y
-  entregas lo que haya. **Todos los requisitos llegan dentro de los primeros 28
-  minutos**, así que nadie se queda sin ver los suyos por parar antes; el último
-  cae cuando ya no da tiempo a hacerlo, y eso también es parte del ejercicio.
+- Dura **30 minutos**. Todos los requisitos llegan dentro de los primeros 28, así
+  que los ves todos; el último cae cuando ya no da tiempo a hacerlo, y eso también
+  es parte del ejercicio.
+- **En el minuto 30 el juego para y te pregunta una sola cosa:** ¿lo que tienes
+  entregado ya vale, o quieres diez minutos más? Las dos respuestas están bien, y
+  ninguna puntúa por sí sola. Se te pide el motivo en una línea, y **esa línea es
+  parte de la evaluación**: lo que miramos es si encaja con lo que hay en el disco.
+- O sea: **30 minutos, 40 como máximo** si pides la prórroga.
 
 Si te quedas sin red, el juego sigue con lo último que bajó y te lo dice. Vuelve
 a haber red, vuelve a haber requisitos: no se pierde nada.

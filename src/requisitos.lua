@@ -10,7 +10,8 @@
 
 local https_ok, https = pcall(require, "https")
 
-local R = { url = nil, run = nil, minutos = 0, lista = {}, pendientes = 0, error = nil, ultima = 0 }
+local R = { url = nil, run = nil, minutos = 0, lista = {}, pendientes = 0, error = nil, ultima = 0,
+            base = 30, prorroga = 10, decision = "" }
 
 local function pedir(url)
   if not https_ok then
@@ -36,8 +37,7 @@ end
 local function anotar(linea)
   local f = io.open("REQUISITOS-RECIBIDOS.md", "a")
   if not f then return end
-  f:write(linea, "
-")
+  f:write(linea, "\n")
   f:close()
 end
 
@@ -47,12 +47,7 @@ local function anotarNuevos(lista, minutos)
   for _, r in ipairs(lista or {}) do
     if not vistos[r.id] then
       vistos[r.id] = true
-      anotar(("
-## [%s] %s
-
-*llegó en el minuto %d · %s*
-
-%s")
+      anotar(("\n## [%s] %s\n\n*llegó en el minuto %d · %s*\n\n%s")
         :format(r.id, r.titulo, minutos, r.tipo or "feature", r.cuerpo))
     end
   end
@@ -65,14 +60,12 @@ function R.empezar(url, candidato)
   local d = json(cuerpo)
   if not d or not d.ok then R.error = "respuesta rara del servidor"; return false end
   R.run, R.lista, R.minutos, R.pendientes = d.runId, d.requisitos or {}, d.minutos or 0, 0
+  R.base, R.prorroga = d.base or 30, d.prorroga or 10
   R.error = nil
   -- El reloj arranca aquí y queda escrito. Lo que hubiera antes en el repo es
   -- preparación; lo que cuenta empieza en este minuto, y así vale lo mismo
   -- clonar hoy que clonar la semana pasada.
-  anotar(("# Requisitos recibidos
-
-partida `%s` · abierta el %s
-")
+  anotar(("# Requisitos recibidos\n\npartida `%s` · abierta el %s\n")
     :format(R.run, os.date("!%Y-%m-%d %H:%M UTC")))
   anotarNuevos(R.lista, 0)
   return true
@@ -88,9 +81,21 @@ function R.refrescar(dt)
   local d = json(cuerpo)
   if d and d.ok then
     R.lista, R.minutos, R.pendientes = d.requisitos or R.lista, d.minutos or R.minutos, d.pendientes or 0
+    R.base, R.prorroga = d.base or R.base, d.prorroga or R.prorroga
     R.error = nil
     anotarNuevos(R.lista, R.minutos)
   end
+end
+
+--- Manda la decisión del minuto 30. Si no hay red, el juego sigue igual: la
+--- decisión ya quedó escrita en REQUISITOS-RECIBIDOS.md, que es lo que se entrega.
+function R.decidir(eleccion, motivo)
+  if not R.run then return false end
+  local limpio = (motivo or ""):gsub("[^%w%sáéíóúñÁÉÍÓÚÑ,.:;¿?¡!%-]", ""):gsub("%s+", "%%20")
+  local cuerpo = pedir(R.url .. "?accion=decidir&run=" .. R.run ..
+    "&eleccion=" .. eleccion .. "&motivo=" .. limpio)
+  R.decision = eleccion
+  return cuerpo ~= nil
 end
 
 return R
