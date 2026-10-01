@@ -99,18 +99,37 @@ que no hace falta que nadie se autocontrole: se ve solo.
 
 ## Qué entregas
 
-Un repo tuyo (o un ZIP, nos da igual) con:
+Un repo tuyo, público, con:
 
 1. **El juego funcionando.** `love .` tiene que arrancar y jugarse. Si no
    arranca, no hay nada que mirar — y eso pasa más de lo que crees, así que
    pruébalo en limpio antes de mandarlo.
-2. **`PLAN-SELLADO.md`**, tal como lo escribió el juego. No lo edites.
-3. **`SUPUESTOS.md`** — una línea por decisión que tuviste que tomar sin que el
-   requisito la definiera. Este archivo es el documento, no el anexo.
-3. **`REQUISITOS-RECIBIDOS.md`**, tal como lo escribió el juego. No lo edites.
-4. **Lo que dejaste fuera, y por qué.** En el mismo `SUPUESTOS.md`, al final.
-   Dejar algo fuera con un motivo escrito **puntúa más** que entregarlo a medias.
+2. **`chat.md` — la conversación entera con tu agente.** No es un anexo:
+   **sin transcripción no evaluamos la entrega.** Lee el apartado de abajo.
+3. **`PLAN-SELLADO.md`** y **`REQUISITOS-RECIBIDOS.md`**, tal como los escribió el
+   juego. No los edites.
+4. **`SUPUESTOS.md`** — una línea por decisión que tuviste que tomar sin que el
+   requisito la definiera, y al final lo que dejaste fuera con su motivo. Dejar
+   algo fuera por escrito **puntúa más** que entregarlo a medias.
 5. Tus pruebas, si las escribiste. `love . --test` debería seguir en verde.
+
+### La transcripción, en serio
+
+Pega en `chat.md` la sesión completa con tu agente: tus prompts, lo que te
+devolvió, las correcciones, los callejones sin salida y lo que descartaste.
+**Cruda, sin editar y sin resumir.**
+
+Es lo que más miramos, y por un motivo sencillo: el código terminado se parece
+bastante de un candidato a otro, y la conversación no se parece en nada. Ahí se
+ve cómo acotas, cuándo corriges, qué aceptas sin leer y en qué momento decides
+que algo no cabe.
+
+Con Claude Code, `/export` te la deja en un fichero. Con otros asistentes, copiar
+y pegar basta.
+
+Que se vea que algo te costó, que te equivocaste o que el modelo te mandó a un
+callejón **no resta**. Una transcripción demasiado limpia sí hace preguntarse qué
+falta.
 
 ## Esto no es código de confianza
 

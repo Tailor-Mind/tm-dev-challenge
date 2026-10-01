@@ -18,6 +18,9 @@ local json = require("src.json")
 local R = {
   url = nil, run = nil, clave = nil, minutos = 0, lista = {}, pendientes = 0,
   base = 30, prorroga = 10, decision = "", error = nil, via = nil,
+  -- El reloj lo lleva el servidor, pero entre consulta y consulta corre aquí:
+  -- un número que solo se mueve cada veinte segundos no es un cronómetro.
+  segundos = 0, empezadoEn = nil, horaInicio = nil,
   estado = "sin partida",   -- sin partida | abriendo | en marcha
   ultima = 0,
 }
@@ -115,11 +118,28 @@ end
 
 -- ------------------------------------------------------------ las respuestas
 
+--- "2026-10-01T19:33:23.660Z" → la hora local en HH:MM, para enseñar cuándo
+--- empezó. Si viene raro, se deja en blanco antes que inventar una hora.
+local function horaDe(iso)
+  if type(iso) ~= "string" then return nil end
+  local a, m, d, h, mi, s = iso:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)")
+  if not a then return nil end
+  local utc = os.time({ year = tonumber(a), month = tonumber(m), day = tonumber(d),
+                        hour = tonumber(h), min = tonumber(mi), sec = tonumber(s) })
+  -- `os.time` interpreta la tabla como hora local, así que se corrige la
+  -- diferencia con UTC para que lo que se enseña sea la hora del reloj de pared.
+  local desfase = os.difftime(os.time(), os.time(os.date("!*t")))
+  return os.date("%H:%M", utc + desfase)
+end
+
 local function aplicar(etiqueta, d)
   if etiqueta == "empezar" then
     R.run, R.estado = d.runId, "en marcha"
     R.base, R.prorroga = d.base or 30, d.prorroga or 10
     R.lista, R.minutos, R.pendientes = d.requisitos or {}, d.minutos or 0, d.pendientes or 0
+    R.empezadoEn = d.empezadoEn or R.empezadoEn
+    R.horaInicio = horaDe(R.empezadoEn) or R.horaInicio
+    R.segundos = (d.minutos or 0) * 60
     anotar(("# Requisitos recibidos\n\npartida `%s` · abierta el %s\n")
       :format(R.run, os.date("!%Y-%m-%d %H:%M UTC")))
     anotarNuevos(R.lista, R.minutos)
@@ -128,6 +148,13 @@ local function aplicar(etiqueta, d)
     R.estado = "en marcha"
     R.lista = d.requisitos or R.lista
     R.minutos, R.pendientes = d.minutos or R.minutos, d.pendientes or 0
+    R.empezadoEn = d.empezadoEn or R.empezadoEn
+    R.horaInicio = horaDe(R.empezadoEn) or R.horaInicio
+    -- El servidor manda minutos enteros; se resincroniza sin perder los
+    -- segundos que ya iban contados dentro de ese minuto.
+    if math.abs(R.segundos - (d.minutos or 0) * 60) > 70 then
+      R.segundos = (d.minutos or 0) * 60
+    end
     R.base, R.prorroga = d.base or R.base, d.prorroga or R.prorroga
     R.decision = d.decision or R.decision
     anotarNuevos(R.lista, R.minutos)
@@ -161,10 +188,31 @@ function R.refrescar(dt)
   end
 
   if R.estado ~= "en marcha" or not R.run then return end
+
+  -- El cronómetro corre aquí entre consulta y consulta.
+  R.segundos = R.segundos + dt
+  R.minutos = math.floor(R.segundos / 60)
+
   R.ultima = R.ultima + dt
   if R.ultima < 20 then return end
   R.ultima = 0
   pedir(base() .. "siguiente&run=" .. R.run, "estado")
+end
+
+--- El cronómetro, en HH:MM:SS.
+function R.reloj()
+  local s = math.max(0, math.floor(R.segundos))
+  return ("%02d:%02d:%02d"):format(math.floor(s / 3600), math.floor(s % 3600 / 60), s % 60)
+end
+
+--- Los requisitos abiertos, en Markdown, listos para pegárselos a un agente.
+function R.comoTexto()
+  if #R.lista == 0 then return "" end
+  local partes = { "# Requisitos abiertos\n" }
+  for _, r in ipairs(R.lista) do
+    partes[#partes + 1] = ("## [%s] %s\n\n%s\n"):format(r.id, r.titulo, r.cuerpo)
+  end
+  return table.concat(partes, "\n")
 end
 
 return R

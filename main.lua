@@ -23,6 +23,7 @@ local ENDPOINT = os.getenv("TM_ENDPOINT") or
   "https://script.google.com/macros/s/AKfycbzAnxZy6WchTCI93EArs_-bHfEhOm0XoBSa7HhuLEgi6egs6KLzQ4miCovR7Y2A1GH5Ug/exec"
 
 local mundo, panel, correo, clave = nil, true, nil, nil
+local copiado = 0   -- segundos que queda el aviso de "copiado" en pantalla
 
 --- Sella el plan, abre la partida y arranca el reloj. En ese orden.
 local function sellarYEmpezar()
@@ -73,6 +74,7 @@ function love.update(dt)
     if plan.listo then sellarYEmpezar() end
     return
   end
+  if copiado > 0 then copiado = copiado - dt end
   decision.actualizar(requisitos)
   if decision.bloquea() then return end
   -- dt con techo: si arrastras la ventana, el juego no se teletransporta.
@@ -89,7 +91,7 @@ function love.draw()
   if not mundo then return end
   if plan.activo then plan.dibujar(); return end
   pintar.mundo(mundo)
-  if panel then pintar.requisitos(requisitos) end
+  if panel then pintar.requisitos(requisitos, copiado > 0) end
   decision.dibujar(requisitos)
 end
 
@@ -103,6 +105,15 @@ function love.keypressed(tecla)
   decision.cerrarAviso()
   if tecla == "tab" then panel = not panel end
   if tecla == "r" then mundo:reiniciar() end
+  -- Los requisitos se trabajan pegándoselos a tu agente, y en un lienzo no se
+  -- pueden seleccionar con el ratón. C los pone en el portapapeles en Markdown.
+  if tecla == "c" then
+    local texto = requisitos.comoTexto()
+    if texto ~= "" then
+      love.system.setClipboardText(texto)
+      copiado = 2.5
+    end
+  end
   -- LÖVE no recarga en caliente. F5 reinicia el juego entero, que tarda menos de
   -- un segundo: tus cambios entran y la partida sigue donde estaba, porque el
   -- reloj lo lleva el servidor y el identificador está en `.tm-run`.

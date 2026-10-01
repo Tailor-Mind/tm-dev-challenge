@@ -120,8 +120,12 @@ function D.dibujar(R)
       love.graphics.printf("Se acabó el tiempo.", x, y, cw)
       love.graphics.setColor(0.72, 0.78, 0.88)
       love.graphics.printf(
-        "\nEntrega lo que hay: el juego, SUPUESTOS.md con lo que asumiste y lo que " ..
-        "dejaste fuera, y REQUISITOS-RECIBIDOS.md tal como está.", x, y + 24, cw)
+        "\nEntrega lo que hay:\n\n" ..
+        "  · el juego\n" ..
+        "  · chat.md — la conversación entera con tu agente, sin editar\n" ..
+        "  · SUPUESTOS.md — lo que asumiste y lo que dejaste fuera\n" ..
+        "  · PLAN-SELLADO.md y REQUISITOS-RECIBIDOS.md, tal como están\n\n" ..
+        "Sin chat.md no se evalúa: es lo que más miramos.", x, y + 24, cw)
     end
   end
 
