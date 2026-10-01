@@ -28,8 +28,9 @@ que funcione, en el menor tiempo, y decir en voz alta lo que sacrificaste**.
    ```
    love . --test
    ```
-   Cinco pruebas en verde. Están en `tests/motor_spec.lua` y son de verdad: te
-   sirven de red y de ejemplo de cómo se prueba esto sin abrir una ventana.
+   Diez pruebas en verde, en `tests/`. Son de verdad: te sirven de red y de
+   ejemplo de cómo se prueba esto sin abrir una ventana. La de sintaxis compila
+   todos los ficheros del repo, `main.lua` incluido.
 4. Mira `demo/requisitos-demo.md`: tres requisitos de ejemplo con la forma exacta
    que tendrán los de verdad. Practica con ellos lo que quieras. **No cuentan.**
 
