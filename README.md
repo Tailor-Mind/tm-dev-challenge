@@ -183,6 +183,21 @@ cuánto queda y registra la decisión del minuto 30. Léelo aunque no lo uses: d
 exactamente qué se le puede pedir al servidor y qué no. Lo que **no** se puede:
 requisitos por adelantado, más de los que te tocaron, y volver a tirar los dados.
 
+## Si rompes el juego, no rompes la prueba
+
+Tu código corre dentro de una red. Si lanza un error, **no se cierra nada**: lo
+ves en pantalla, el reloj sigue, los requisitos siguen llegando y lo que decidas
+se sigue registrando. Lo arreglas y pulsas `R`.
+
+Eso es a propósito. Lo único que no puede fallar es lo que deja constancia de tu
+trabajo, así que el reloj y el envío van por delante del juego y no dependen de
+él. Si aun así el panel se cayera, el reloj del servidor sigue corriendo y la
+decisión del minuto 30 se puede mandar desde la terminal con el skill `tm-reto`.
+
+Y si el juego ni siquiera arranca por un error de sintaxis, nada se pierde: la
+partida vive en el servidor, y `PLAN-SELLADO.md` y `REQUISITOS-RECIBIDOS.md`
+están escritos en disco desde el minuto cero.
+
 ## Recargar tus cambios
 
 LÖVE no recarga en caliente: hay que reiniciar el juego para ver lo que tocaste.

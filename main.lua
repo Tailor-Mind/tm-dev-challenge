@@ -25,6 +25,8 @@ local ENDPOINT = os.getenv("TM_ENDPOINT") or
 local mundo, panel, correo, clave = nil, true, nil, nil
 local copiado = 0        -- segundos que queda el aviso en pantalla
 local copiadoQue = ""    -- qué se copió, para decirlo en el aviso
+local fallo = nil        -- el último error de tu código, si lo hubo
+local falloRed = nil     -- y el del panel, que nunca debería tumbar la partida
 
 --- Sella el plan, abre la partida y arranca el reloj. En ese orden.
 local function sellarYEmpezar()
@@ -77,21 +79,53 @@ function love.update(dt)
   end
   if copiado > 0 then copiado = copiado - dt end
   decision.actualizar(requisitos)
+
+  -- El reloj y el envío van **antes** que el juego y fuera de su suerte: si lo
+  -- que escribes revienta, la partida tiene que seguir contando y hablando con
+  -- el servidor. Perder la evidencia por un error tuyo sería perder la prueba.
+  -- Ni siquiera esto puede tumbar la partida: si el panel falla, el reloj del
+  -- servidor sigue y la decisión del minuto 30 se puede mandar desde la terminal
+  -- con el skill `tm-reto`.
+  local okRed, errRed = pcall(requisitos.refrescar, dt)
+  if not okRed then falloRed = tostring(errRed) end
+
   if decision.bloquea() then return end
   -- dt con techo: si arrastras la ventana, el juego no se teletransporta.
   dt = math.min(dt, 1 / 30)
-  mundo:actualizar(dt, {
-    izquierda = love.keyboard.isDown("left", "a"),
-    derecha = love.keyboard.isDown("right", "d"),
-    saltar = love.keyboard.isDown("space", "up", "w"),
-  })
-  requisitos.refrescar(dt)
+
+  -- Tu código, en una red. Un error no cierra el proceso: se enseña en pantalla
+  -- y el resto sigue vivo.
+  local ok, err = pcall(function ()
+    mundo:actualizar(dt, {
+      izquierda = love.keyboard.isDown("left", "a"),
+      derecha = love.keyboard.isDown("right", "d"),
+      saltar = love.keyboard.isDown("space", "up", "w"),
+    })
+  end)
+  if not ok then fallo = tostring(err) end
 end
 
 function love.draw()
   if not mundo then return end
   if plan.activo then plan.dibujar(); return end
-  pintar.mundo(mundo)
+
+  local ok, err = pcall(pintar.mundo, mundo)
+  if not ok then fallo = tostring(err) end
+
+  if falloRed then
+    love.graphics.setColor(0.95, 0.4, 0.35)
+    love.graphics.printf("el panel falló: " .. falloRed ..
+      "\nel reloj del servidor sigue; puedes seguir y usar el skill tm-reto",
+      14, love.graphics.getHeight() - 110, love.graphics.getWidth() - 400)
+    love.graphics.setColor(1, 1, 1)
+  end
+  if fallo then
+    love.graphics.setColor(0.95, 0.55, 0.35)
+    love.graphics.printf("tu juego lanzó un error (el reloj sigue corriendo):\n" .. fallo,
+      14, love.graphics.getHeight() - 70, love.graphics.getWidth() - 400)
+    love.graphics.setColor(1, 1, 1)
+  end
+
   if panel then pintar.requisitos(requisitos, copiado > 0 and copiadoQue or nil) end
   decision.dibujar(requisitos)
 end
@@ -105,7 +139,7 @@ function love.keypressed(tecla)
   if decision.teclado(tecla, requisitos) then return end
   decision.cerrarAviso()
   if tecla == "tab" then panel = not panel end
-  if tecla == "r" then mundo:reiniciar() end
+  if tecla == "r" then fallo = nil; pcall(function () mundo:reiniciar() end) end
   -- Los requisitos se trabajan pegándoselos a tu agente de uno en uno, y en un
   -- lienzo no se pueden seleccionar con el ratón. Cada número copia el suyo;
   -- C los copia todos, para cuando quieras el panorama completo.
