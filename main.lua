@@ -4,7 +4,9 @@
   Arranca así:
       love .                      juega
       love . --test               corre las pruebas y sale
-      love . --run TU@CORREO      abre tu partida y empieza el goteo de requisitos
+      love . --run TU@CORREO --clave TU_CLAVE
+                                  abre tu partida y empieza el goteo de requisitos
+                                  (la clave te llegó en tu correo de confirmación)
 
   Lo que ves ahora es el punto de partida: un personaje que corre, salta y no
   atraviesa el suelo. A partir de ahí, los requisitos van llegando solos.
@@ -20,7 +22,7 @@ local plan = require("src.plan")
 local ENDPOINT = os.getenv("TM_ENDPOINT") or
   "https://script.google.com/macros/s/AKfycbzAnxZy6WchTCI93EArs_-bHfEhOm0XoBSa7HhuLEgi6egs6KLzQ4miCovR7Y2A1GH5Ug/exec"
 
-local mundo, panel, correo = nil, true, nil
+local mundo, panel, correo, clave = nil, true, nil, nil
 
 --- Sella el plan, abre la partida y arranca el reloj. En ese orden.
 local function sellarYEmpezar()
@@ -34,7 +36,7 @@ local function sellarYEmpezar()
     f:write(("\nSellado el %s.\n"):format(os.date("!%Y-%m-%d %H:%M UTC")))
     f:close()
   end
-  requisitos.empezar(ENDPOINT, correo)
+  requisitos.empezar(ENDPOINT, correo, clave)
   requisitos.sellarPlan(plan.hoja(), plan.noCabe)
   plan.activo = false
 end
@@ -46,6 +48,7 @@ function love.load(args)
       love.event.quit(codigo)
       return
     end
+    if a == "--clave" and args[i + 1] then clave = args[i + 1] end
     if a == "--run" and args[i + 1] then
       -- Si ya hay partida abierta en este repo, se reanuda. Reiniciar el juego
       -- para ver tus cambios no abre otra ni te devuelve el reloj a cero.

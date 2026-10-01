@@ -25,7 +25,7 @@ return function ()
     end
   end
 
-  for _, fichero in ipairs({ "tests.motor_spec", "tests.util_spec", "tests.sintaxis_spec" }) do
+  for _, fichero in ipairs({ "tests.motor_spec", "tests.util_spec", "tests.json_spec", "tests.sintaxis_spec" }) do
     local suite = require(fichero)
     suite(prueba)
   end

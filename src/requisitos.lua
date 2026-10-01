@@ -1,72 +1,54 @@
 --[[
   El goteo de requisitos.
 
-  Los requisitos no están en este repo. Se piden a un endpoint nuestro, se
-  sortean por candidato y se abren con el reloj. No se pueden pedir por
-  adelantado y no hay forma de pedir más: la prueba no es hacerlos todos.
+  Los requisitos no están en este repo: se piden al servidor, se sortean por
+  candidato y se abren con el reloj. No se pueden pedir por adelantado y no hay
+  forma de pedir más.
 
-  Si no hay red, el juego sigue: se queda con lo último que bajó y lo dice.
+  Todo el tráfico va por un hilo aparte (`hilo_red.lua`), así que el juego nunca
+  se congela esperando. Una petición tarda uno o dos segundos; pararlo todo cada
+  vez se nota, y encima estropea la sensación del salto, que es justo lo que
+  algún requisito te va a pedir ajustar.
+
+  Si no hay red, la partida sigue con lo último que bajó y el panel lo dice.
 ]]
 
---[[
-  Cómo se habla con el servidor.
+local json = require("src.json")
 
-  LÖVE *debería* traer el módulo `https`, pero no todas las compilaciones lo
-  hacen, y descubrirlo a mitad de la prueba no es aceptable. Así que hay dos
-  caminos y se usa el que haya:
+local R = {
+  url = nil, run = nil, clave = nil, minutos = 0, lista = {}, pendientes = 0,
+  base = 30, prorroga = 10, decision = "", error = nil, via = nil,
+  estado = "sin partida",   -- sin partida | abriendo | en marcha
+  ultima = 0,
+}
 
-    1. el módulo `https`, si existe
-    2. `curl`, que viene de serie en Windows 10+, macOS y casi todo Linux
+local MARCA = ".tm-run"
+local hilo, pedidos, respuestas
+local vistos = {}
 
-  No es elegante. Es que la prueba tiene que funcionar en la máquina que tenga
-  delante quien la hace, y eso vale más que la elegancia.
-]]
-local https_ok, https = pcall(require, "https")
+-- ------------------------------------------------------------------ el hilo
 
-local R = { url = nil, run = nil, minutos = 0, lista = {}, pendientes = 0, error = nil, ultima = 0,
-            base = 30, prorroga = 10, decision = "", via = https_ok and "https" or "curl" }
-
-local function porCurl(url)
-  -- Las comillas dobles valen igual en cmd, en PowerShell y en sh.
-  local tuberia = io.popen('curl -sSL --max-time 15 "' .. url .. '"', "r")
-  if not tuberia then return nil, "no pude lanzar curl" end
-  local cuerpo = tuberia:read("*a")
-  tuberia:close()
-  if not cuerpo or cuerpo == "" then return nil, "curl no devolvió nada" end
-  if not cuerpo:find("{", 1, true) then return nil, "el servidor no devolvió JSON" end
-  return cuerpo
+local function arrancarHilo()
+  if hilo then return end
+  hilo = love.thread.newThread("src/hilo_red.lua")
+  pedidos = love.thread.getChannel("tm_pedidos")
+  respuestas = love.thread.getChannel("tm_respuestas")
+  hilo:start()
 end
 
-local function pedir(url)
-  if https_ok then
-    local code, cuerpo = https.request(url)
-    if code == 200 then return cuerpo end
-    -- Si el módulo está pero falla, se intenta por curl antes de rendirse.
-    R.via = "curl"
-  end
-  return porCurl(url)
+local function pedir(url, etiqueta)
+  arrancarHilo()
+  pedidos:push({ url = url, etiqueta = etiqueta })
 end
 
---- Decodificador mínimo: lo justo para leer la respuesta del endpoint.
-local function json(txt)
-  local f = load("return " .. txt
-    :gsub('"(%w[%w_]*)"%s*:', '["%1"]=')
-    :gsub('":', '"]=')          -- claves con espacios o acentos
-    :gsub('{%s*"', '{["')
-    :gsub('null', 'nil'))
-  local ok, v = pcall(f)
-  return ok and v or nil
-end
+-- --------------------------------------------------------------- el fichero
 
---- Deja constancia en el repo de qué llegó y cuándo. Va en la entrega.
 local function anotar(linea)
   local f = io.open("REQUISITOS-RECIBIDOS.md", "a")
   if not f then return end
   f:write(linea, "\n")
   f:close()
 end
-
-local vistos = {}
 
 local function anotarNuevos(lista, minutos)
   for _, r in ipairs(lista or {}) do
@@ -78,90 +60,111 @@ local function anotarNuevos(lista, minutos)
   end
 end
 
---- La partida vive en disco: reiniciar el juego no abre otra ni pierde el reloj.
-local MARCA = ".tm-run"
-
-function R.recordar()
+local function recordar()
   local f = io.open(MARCA, "w")
   if not f then return end
-  f:write(R.run or "")
+  f:write((R.run or "") .. "\n" .. (R.clave or ""))
   f:close()
 end
 
+-- ------------------------------------------------------------- las acciones
+
+local function base()
+  return R.url .. "?accion="
+end
+
+--- Abre la partida. Vuelve en cuanto manda la petición: la respuesta llega por
+--- el hilo y se recoge en `refrescar`.
+function R.empezar(url, candidato, clave)
+  R.url, R.clave, R.estado = url, clave, "abriendo"
+  pedir(base() .. "empezar&candidato=" .. candidato .. "&clave=" .. (clave or ""), "empezar")
+end
+
+--- Retoma la partida apuntada en `.tm-run`, si la hay.
 function R.reanudar(url)
   local f = io.open(MARCA, "r")
   if not f then return false end
-  local id = (f:read("*a") or ""):gsub("%s", "")
+  local texto = f:read("*a") or ""
   f:close()
-  if id == "" then return false end
+  local id, clave = texto:match("^%s*([^\n]*)\n?(.*)$")
+  if not id or id == "" then return false end
 
-  R.url, R.run = url, id
-  local cuerpo = pedir(url .. "?accion=estado&run=" .. id)
-  if not cuerpo then R.error = "no pude hablar con el servidor; sigo con lo que hay"; return true end
-  local d = json(cuerpo)
-  if d and d.ok then
-    R.lista, R.minutos, R.pendientes = d.requisitos or {}, d.minutos or 0, d.pendientes or 0
-    R.base, R.prorroga, R.decision = d.base or 30, d.prorroga or 10, d.decision or ""
-    for _, r in ipairs(R.lista) do vistos[r.id] = true end   -- no se vuelven a anotar
-  end
+  R.url, R.run, R.clave, R.estado = url, id, (clave or ""):gsub("%s", ""), "en marcha"
+  pedir(base() .. "estado&run=" .. id, "estado")
   return true
 end
 
-function R.empezar(url, candidato)
-  R.url = url
-  local cuerpo, err = pedir(url .. "?accion=empezar&candidato=" .. candidato)
-  if not cuerpo then R.error = err; return false end
-  local d = json(cuerpo)
-  if not d or not d.ok then R.error = "respuesta rara del servidor"; return false end
-  R.run, R.lista, R.minutos, R.pendientes = d.runId, d.requisitos or {}, d.minutos or 0, 0
-  R.base, R.prorroga = d.base or 30, d.prorroga or 10
-  R.error = nil
-  -- El reloj arranca aquí y queda escrito. Lo que hubiera antes en el repo es
-  -- preparación; lo que cuenta empieza en este minuto, y así vale lo mismo
-  -- clonar hoy que clonar la semana pasada.
-  anotar(("# Requisitos recibidos\n\npartida `%s` · abierta el %s\n")
-    :format(R.run, os.date("!%Y-%m-%d %H:%M UTC")))
-  anotarNuevos(R.lista, 0)
-  R.recordar()
-  return true
-end
-
---- Se llama sola cada 30 s desde `main.lua`. Barata y sin bloquear la partida.
-function R.refrescar(dt)
-  R.ultima = R.ultima + dt
-  if not R.run or R.ultima < 30 then return end
-  R.ultima = 0
-  local cuerpo, err = pedir(R.url .. "?accion=siguiente&run=" .. R.run)
-  if not cuerpo then R.error = err; return end
-  local d = json(cuerpo)
-  if d and d.ok then
-    R.lista, R.minutos, R.pendientes = d.requisitos or R.lista, d.minutos or R.minutos, d.pendientes or 0
-    R.base, R.prorroga = d.base or R.base, d.prorroga or R.prorroga
-    R.error = nil
-    anotarNuevos(R.lista, R.minutos)
-  end
-end
-
---- Manda la decisión del minuto 30. Si no hay red, el juego sigue igual: la
---- decisión ya quedó escrita en REQUISITOS-RECIBIDOS.md, que es lo que se entrega.
-function R.decidir(eleccion, motivo)
-  if not R.run then return false end
-  local limpio = (motivo or ""):gsub("[^%w%sáéíóúñÁÉÍÓÚÑ,.:;¿?¡!%-]", ""):gsub("%s+", "%%20")
-  local cuerpo = pedir(R.url .. "?accion=decidir&run=" .. R.run ..
-    "&eleccion=" .. eleccion .. "&motivo=" .. limpio)
-  R.decision = eleccion
-  return cuerpo ~= nil
-end
-
---- Sella el plan en el servidor. Si no hay red, no pasa nada: el plan ya quedó
---- escrito en PLAN-SELLADO.md, que es lo que se entrega.
 function R.sellarPlan(hoja, noCabe)
   if not R.run then return false end
   local esc = function (t)
     return (t or ""):gsub("[^%w%sáéíóúñÁÉÍÓÚÑ=;,.:¿?¡!%-]", ""):gsub("%s+", "%%20")
   end
-  return pedir(R.url .. "?accion=plan&run=" .. R.run ..
-    "&hoja=" .. esc(hoja) .. "&cuando_no_cabe=" .. esc(noCabe)) ~= nil
+  pedir(base() .. "plan&run=" .. R.run .. "&hoja=" .. esc(hoja) ..
+        "&cuando_no_cabe=" .. esc(noCabe), "ack")
+  return true
+end
+
+function R.decidir(eleccion, motivo)
+  if not R.run then return false end
+  local limpio = (motivo or ""):gsub("[^%w%sáéíóúñÁÉÍÓÚÑ,.:;¿?¡!%-]", ""):gsub("%s+", "%%20")
+  R.decision = eleccion
+  pedir(base() .. "decidir&run=" .. R.run .. "&eleccion=" .. eleccion ..
+        "&motivo=" .. limpio, "ack")
+  return true
+end
+
+-- ------------------------------------------------------------ las respuestas
+
+local function aplicar(etiqueta, d)
+  if etiqueta == "empezar" then
+    R.run, R.estado = d.runId, "en marcha"
+    R.base, R.prorroga = d.base or 30, d.prorroga or 10
+    R.lista, R.minutos, R.pendientes = d.requisitos or {}, d.minutos or 0, d.pendientes or 0
+    anotar(("# Requisitos recibidos\n\npartida `%s` · abierta el %s\n")
+      :format(R.run, os.date("!%Y-%m-%d %H:%M UTC")))
+    anotarNuevos(R.lista, R.minutos)
+    recordar()
+  elseif etiqueta == "estado" then
+    R.estado = "en marcha"
+    R.lista = d.requisitos or R.lista
+    R.minutos, R.pendientes = d.minutos or R.minutos, d.pendientes or 0
+    R.base, R.prorroga = d.base or R.base, d.prorroga or R.prorroga
+    R.decision = d.decision or R.decision
+    anotarNuevos(R.lista, R.minutos)
+  end
+end
+
+--- Recoge lo que haya traído el hilo y, cada 20 s, vuelve a preguntar.
+function R.refrescar(dt)
+  if respuestas then
+    local msg = respuestas:pop()
+    while msg do
+      if msg.via then R.via = msg.via end
+      if not msg.cuerpo then
+        R.error = msg.error or "sin respuesta del servidor"
+        if msg.etiqueta == "empezar" then R.estado = "sin partida" end
+      else
+        local d, err = json.decodificar(msg.cuerpo)
+        if not d then
+          R.error = "no entendí la respuesta: " .. tostring(err)
+          if msg.etiqueta == "empezar" then R.estado = "sin partida" end
+        elseif d.ok == false then
+          R.error = d.error or "el servidor dijo que no"
+          if msg.etiqueta == "empezar" then R.estado = "sin partida" end
+        else
+          R.error = nil
+          aplicar(msg.etiqueta, d)
+        end
+      end
+      msg = respuestas:pop()
+    end
+  end
+
+  if R.estado ~= "en marcha" or not R.run then return end
+  R.ultima = R.ultima + dt
+  if R.ultima < 20 then return end
+  R.ultima = 0
+  pedir(base() .. "siguiente&run=" .. R.run, "estado")
 end
 
 return R
