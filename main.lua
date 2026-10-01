@@ -15,7 +15,8 @@ local pintar = require("src.pintar")
 local requisitos = require("src.requisitos")
 
 -- Cámbialo si te damos otra: es el endpoint del goteo.
-local ENDPOINT = os.getenv("TM_ENDPOINT") or "https://script.google.com/macros/s/PENDIENTE/exec"
+local ENDPOINT = os.getenv("TM_ENDPOINT") or
+  "https://script.google.com/macros/s/AKfycbzAnxZy6WchTCI93EArs_-bHfEhOm0XoBSa7HhuLEgi6egs6KLzQ4miCovR7Y2A1GH5Ug/exec"
 
 local mundo, panel = nil, true
 
