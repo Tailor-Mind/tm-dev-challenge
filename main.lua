@@ -121,6 +121,10 @@ function love.keypressed(tecla)
   if tecla == "escape" then love.event.quit() end
 end
 
+function love.wheelmoved(_, dy)
+  if panel then pintar.rueda(dy) end
+end
+
 function love.resize(w, h)
   if mundo then mundo.ancho, mundo.alto = w, h end
 end

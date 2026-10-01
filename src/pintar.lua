@@ -21,6 +21,15 @@ function pintar.mundo(m)
   love.graphics.setColor(1, 1, 1)
 end
 
+-- Cuánto está bajada la lista de requisitos, y cuánto se puede bajar.
+pintar.scroll = 0
+pintar.maxScroll = 0
+
+--- La rueda del ratón mueve la lista. 40 px por muesca.
+function pintar.rueda(dy)
+  pintar.scroll = math.max(0, math.min(pintar.maxScroll, pintar.scroll - dy * 40))
+end
+
 function pintar.requisitos(R, copiado)
   local x, y, w = love.graphics.getWidth() - 360, 50, 346
   love.graphics.setColor(0, 0, 0, 0.72)
@@ -51,9 +60,17 @@ function pintar.requisitos(R, copiado)
         R.decision == "seguir" and (" + " .. R.prorroga) or ""),
       x + 14, y + 34, w - 28)
     love.graphics.printf(
-      ("%s · quedan %d por llegar · C los copia"):format(R.run, R.pendientes),
+      ("%s · quedan %d por llegar"):format(R.run, R.pendientes),
       x + 14, y + 52, w - 28)
-    local dy = y + 86
+    love.graphics.setColor(0.45, 0.55, 0.7)
+    love.graphics.printf("C copia · rueda para bajar · están en REQUISITOS-RECIBIDOS.md",
+      x + 14, y + 66, w - 28)
+    -- La lista crece hasta pasarse del panel: se recorta a su zona y se mueve
+    -- con la rueda. Sin esto, los últimos requisitos se pintan fuera de la
+    -- pantalla y no hay forma de leerlos.
+    local arriba, abajo = y + 80, love.graphics.getHeight() - 56
+    love.graphics.setScissor(x, arriba, w, abajo - arriba)
+    local dy = arriba + 6 - pintar.scroll
     for _, r in ipairs(R.lista) do
       love.graphics.setColor(1, 1, 1)
       love.graphics.printf(("[%s] %s"):format(r.id, r.titulo), x + 14, dy, w - 28)
@@ -63,10 +80,27 @@ function pintar.requisitos(R, copiado)
       love.graphics.printf(r.cuerpo, x + 14, dy, w - 28)
       dy = dy + 16 * #lineas + 14
     end
+    love.graphics.setScissor()
+
+    -- Cuánto se puede bajar: lo que mide la lista menos lo que cabe.
+    pintar.maxScroll = math.max(0, (dy + pintar.scroll) - abajo)
+    if pintar.scroll > pintar.maxScroll then pintar.scroll = pintar.maxScroll end
+
+    if pintar.maxScroll > 0 then
+      love.graphics.setColor(0.45, 0.5, 0.62)
+      if pintar.scroll > 0 then love.graphics.printf("▲", x + w - 30, arriba - 2, 20) end
+      if pintar.scroll < pintar.maxScroll then love.graphics.printf("▼", x + w - 30, abajo - 16, 20) end
+    end
   end
+
+  -- El aviso de copiado va en medio de la pantalla, no en una esquina del panel:
+  -- si no se ve, la tecla parece rota aunque haya funcionado.
   if copiado then
-    love.graphics.setColor(0.45, 0.82, 0.55)
-    love.graphics.printf("copiado al portapapeles", x + 14, love.graphics.getHeight() - 52, w - 28)
+    local W, H = love.graphics.getWidth(), love.graphics.getHeight()
+    love.graphics.setColor(0.1, 0.35, 0.2, 0.92)
+    love.graphics.rectangle("fill", W / 2 - 190, H / 2 - 26, 380, 52, 8)
+    love.graphics.setColor(0.6, 0.95, 0.7)
+    love.graphics.printf("requisitos copiados al portapapeles", W / 2 - 180, H / 2 - 8, 360, "center")
   end
   if R.run then
     love.graphics.setColor(0.4, 0.45, 0.55)
