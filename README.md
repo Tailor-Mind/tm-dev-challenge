@@ -12,6 +12,17 @@ qué preguntas y qué escribes cuando el enunciado no lo dice. Dicho de otra
 forma: lo mejor que puedes hacer es entregar **la mayor cantidad de software
 que funcione, en el menor tiempo, y decir en voz alta lo que sacrificaste**.
 
+## Qué necesitas
+
+Windows, macOS o Linux, da igual:
+
+- **LÖVE 11.4 o superior** — <https://love2d.org>
+- **`curl`**, solo si tu compilación de LÖVE no trae el módulo `https`. Viene de
+  serie en Windows 10+, macOS y casi todo Linux; compruébalo con `curl --version`.
+
+Nada más: ni luarocks, ni dependencias, ni build. El panel del juego te dice por
+qué vía está hablando con el servidor.
+
 ## Antes de empezar (esto no cuenta tiempo)
 
 1. Instala **LÖVE 11.4 o superior** — <https://love2d.org>. Comprueba que está:

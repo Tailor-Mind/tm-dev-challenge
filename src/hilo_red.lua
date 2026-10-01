@@ -63,12 +63,16 @@ local function porCurlOculto(url)
   return nil, "la petición no respondió a tiempo"
 end
 
+--- `curl` por tubería. En macOS y Linux no abre ninguna ventana, así que aquí no
+--- hace falta el rodeo de arriba.
 local function porCurl(url)
   local tuberia = io.popen('curl -sSL --max-time 15 "' .. url .. '"', "r")
   if not tuberia then return nil, "no pude lanzar curl" end
   local cuerpo = tuberia:read("*a")
   tuberia:close()
-  if not cuerpo or cuerpo == "" then return nil, "curl no devolvió nada" end
+  if not cuerpo or cuerpo == "" then
+    return nil, "sin respuesta. ¿Tienes `curl` instalado y red? (`curl --version`)"
+  end
   return cuerpo
 end
 
