@@ -214,9 +214,17 @@ function R.restante()
   return ("quedan %02d:%02d"):format(math.floor(s / 60), s % 60)
 end
 
---- Los requisitos abiertos, en Markdown, listos para pegárselos a un agente.
-function R.comoTexto()
+--- Un requisito en Markdown, listo para pegárselo a un agente. Sin número, van
+--- todos; con número, solo ese — que es como se trabaja de verdad: de uno en uno.
+function R.comoTexto(n)
   if #R.lista == 0 then return "" end
+
+  if n then
+    local r = R.lista[n]
+    if not r then return "" end
+    return ("## [%s] %s\n\n%s\n"):format(r.id, r.titulo, r.cuerpo)
+  end
+
   local partes = { "# Requisitos abiertos\n" }
   for _, r in ipairs(R.lista) do
     partes[#partes + 1] = ("## [%s] %s\n\n%s\n"):format(r.id, r.titulo, r.cuerpo)

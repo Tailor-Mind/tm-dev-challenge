@@ -63,7 +63,7 @@ function pintar.requisitos(R, copiado)
       ("%s · quedan %d por llegar"):format(R.run, R.pendientes),
       x + 14, y + 52, w - 28)
     love.graphics.setColor(0.45, 0.55, 0.7)
-    love.graphics.printf("C copia · rueda para bajar · están en REQUISITOS-RECIBIDOS.md",
+    love.graphics.printf("1-9 copia uno · C copia todos · rueda para bajar · REQUISITOS-RECIBIDOS.md",
       x + 14, y + 66, w - 28)
     -- La lista crece hasta pasarse del panel: se recorta a su zona y se mueve
     -- con la rueda. Sin esto, los últimos requisitos se pintan fuera de la
@@ -71,13 +71,17 @@ function pintar.requisitos(R, copiado)
     local arriba, abajo = y + 80, love.graphics.getHeight() - 56
     love.graphics.setScissor(x, arriba, w, abajo - arriba)
     local dy = arriba + 6 - pintar.scroll
-    for _, r in ipairs(R.lista) do
+    for i, r in ipairs(R.lista) do
+      -- El número delante es la tecla que lo copia: trabajar es mandarle uno al
+      -- agente, no la lista entera.
+      love.graphics.setColor(0.45, 0.62, 0.95)
+      love.graphics.printf(tostring(i), x + 14, dy, 16)
       love.graphics.setColor(1, 1, 1)
-      love.graphics.printf(("[%s] %s"):format(r.id, r.titulo), x + 14, dy, w - 28)
+      love.graphics.printf(("[%s] %s"):format(r.id, r.titulo), x + 32, dy, w - 46)
       dy = dy + 20
       love.graphics.setColor(0.6, 0.66, 0.78)
-      local _, lineas = love.graphics.getFont():getWrap(r.cuerpo, w - 28)
-      love.graphics.printf(r.cuerpo, x + 14, dy, w - 28)
+      local _, lineas = love.graphics.getFont():getWrap(r.cuerpo, w - 46)
+      love.graphics.printf(r.cuerpo, x + 32, dy, w - 46)
       dy = dy + 16 * #lineas + 14
     end
     love.graphics.setScissor()
@@ -100,7 +104,10 @@ function pintar.requisitos(R, copiado)
     love.graphics.setColor(0.1, 0.35, 0.2, 0.92)
     love.graphics.rectangle("fill", W / 2 - 190, H / 2 - 26, 380, 52, 8)
     love.graphics.setColor(0.6, 0.95, 0.7)
-    love.graphics.printf("requisitos copiados al portapapeles", W / 2 - 180, H / 2 - 8, 360, "center")
+    love.graphics.printf(
+      copiado == "todos" and "todos los requisitos, copiados"
+        or ("copiado: " .. tostring(copiado)),
+      W / 2 - 180, H / 2 - 8, 360, "center")
   end
   if R.run then
     love.graphics.setColor(0.4, 0.45, 0.55)

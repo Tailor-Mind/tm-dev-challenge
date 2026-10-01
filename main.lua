@@ -23,7 +23,8 @@ local ENDPOINT = os.getenv("TM_ENDPOINT") or
   "https://script.google.com/macros/s/AKfycbzAnxZy6WchTCI93EArs_-bHfEhOm0XoBSa7HhuLEgi6egs6KLzQ4miCovR7Y2A1GH5Ug/exec"
 
 local mundo, panel, correo, clave = nil, true, nil, nil
-local copiado = 0   -- segundos que queda el aviso de "copiado" en pantalla
+local copiado = 0        -- segundos que queda el aviso en pantalla
+local copiadoQue = ""    -- qué se copió, para decirlo en el aviso
 
 --- Sella el plan, abre la partida y arranca el reloj. En ese orden.
 local function sellarYEmpezar()
@@ -91,7 +92,7 @@ function love.draw()
   if not mundo then return end
   if plan.activo then plan.dibujar(); return end
   pintar.mundo(mundo)
-  if panel then pintar.requisitos(requisitos, copiado > 0) end
+  if panel then pintar.requisitos(requisitos, copiado > 0 and copiadoQue or nil) end
   decision.dibujar(requisitos)
 end
 
@@ -105,13 +106,22 @@ function love.keypressed(tecla)
   decision.cerrarAviso()
   if tecla == "tab" then panel = not panel end
   if tecla == "r" then mundo:reiniciar() end
-  -- Los requisitos se trabajan pegándoselos a tu agente, y en un lienzo no se
-  -- pueden seleccionar con el ratón. C los pone en el portapapeles en Markdown.
+  -- Los requisitos se trabajan pegándoselos a tu agente de uno en uno, y en un
+  -- lienzo no se pueden seleccionar con el ratón. Cada número copia el suyo;
+  -- C los copia todos, para cuando quieras el panorama completo.
+  local n = tonumber(tecla)
+  if n and n >= 1 and n <= 9 then
+    local texto = requisitos.comoTexto(n)
+    if texto ~= "" then
+      love.system.setClipboardText(texto)
+      copiado, copiadoQue = 2.5, (requisitos.lista[n] or {}).id or ""
+    end
+  end
   if tecla == "c" then
     local texto = requisitos.comoTexto()
     if texto ~= "" then
       love.system.setClipboardText(texto)
-      copiado = 2.5
+      copiado, copiadoQue = 2.5, "todos"
     end
   end
   -- LÖVE no recarga en caliente. F5 reinicia el juego entero, que tarda menos de
