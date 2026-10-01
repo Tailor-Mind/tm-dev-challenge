@@ -139,6 +139,9 @@ function love.keypressed(tecla)
   if decision.teclado(tecla, requisitos) then return end
   decision.cerrarAviso()
   if tecla == "tab" then panel = not panel end
+  -- Terminar antes es un resultado, no una rendición: quien ya tiene lo suyo
+  -- acabado y probado no gana nada mirando el reloj.
+  if tecla == "e" then decision.terminarYa(requisitos) end
   if tecla == "r" then fallo = nil; pcall(function () mundo:reiniciar() end) end
   -- Los requisitos se trabajan pegándoselos a tu agente de uno en uno, y en un
   -- lienzo no se pueden seleccionar con el ratón. Cada número copia el suyo;

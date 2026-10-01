@@ -27,6 +27,16 @@ local function anotar(linea)
   f:close()
 end
 
+--- Entregar antes de tiempo. Terminar pronto es un resultado, no una rendición:
+--- quien tiene lo suyo acabado y probado no debería quedarse mirando el reloj.
+function D.terminarYa(R)
+  if not R.run or D.estado ~= "jugando" then return false end
+  D.antes = true
+  D.eleccion = "parar"
+  D.estado = "escribiendo"
+  return true
+end
+
 --- Se llama cada cuadro con el cliente de requisitos, que sabe el minuto real.
 function D.actualizar(R)
   if not R.run then return end
@@ -68,7 +78,8 @@ function D.texto(t)
 end
 
 function D.enviar(R)
-  D.limite = (D.eleccion == "seguir") and ((R.base or 30) + (R.prorroga or 10)) or (R.base or 30)
+  D.limite = D.antes and (R.minutos or 0)
+    or ((D.eleccion == "seguir") and ((R.base or 30) + (R.prorroga or 10)) or (R.base or 30))
   D.estado = "cerrado"
 
   anotar(("\n---\n\n## Minuto %d — la decisión\n\n**%s**\n\n> %s\n")
@@ -101,7 +112,9 @@ function D.dibujar(R)
 
   elseif D.estado == "escribiendo" then
     love.graphics.printf(
-      D.eleccion == "parar" and "Entregas aquí. ¿Por qué?" or "Diez minutos más. ¿Para qué, exactamente?",
+      D.antes and "Entregas antes de tiempo. ¿Por qué?"
+        or (D.eleccion == "parar" and "Entregas aquí. ¿Por qué?"
+            or "Diez minutos más. ¿Para qué, exactamente?"),
       x, y, cw)
     love.graphics.setColor(0.72, 0.78, 0.88)
     love.graphics.printf("Una línea. Esta frase es parte de la evaluación.\n", x, y + 24, cw)

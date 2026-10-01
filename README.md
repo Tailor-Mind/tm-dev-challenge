@@ -77,9 +77,15 @@ Eso abre tu partida. A partir de ahí:
 - Los requisitos **no están en este repo** y **no se pueden pedir por
   adelantado**. Tampoco puedes pedir más: los que te tocan son los que te tocan,
   y cada candidato recibe un sorteo distinto.
-- Dura **30 minutos**. Todos los requisitos llegan dentro de los primeros 28, así
-  que los ves todos; el último cae cuando ya no da tiempo a hacerlo, y eso también
-  es parte del ejercicio.
+- Dura **30 minutos**. Los requisitos caen en los minutos **0, 4, 8, 12, 16, 20,
+  24 y 28**: los ves todos, y el último llega cuando ya no da tiempo a hacerlo.
+  Eso también es parte del ejercicio.
+- **Puedes entregar antes.** Con `E` cierras la prueba cuando quieras: te pide el
+  motivo en una línea y se acabó. Terminar pronto con cosas acabadas y probadas
+  es un resultado, no una rendición — y quedarse mirando el reloj no suma nada.
+- **Un requisito, un commit.** Pon su id en el mensaje: `R-10: monedas y
+  marcador`. No es burocracia: es la única forma de ver qué hiciste y en qué
+  orden, y de que un cambio que rompe algo se pueda señalar sin adivinar.
 - **En el minuto 30 el juego para y te pregunta una sola cosa:** ¿lo que tienes
   entregado ya vale, o quieres diez minutos más? Las dos respuestas están bien, y
   ninguna puntúa por sí sola. Se te pide el motivo en una línea, y **esa línea es
