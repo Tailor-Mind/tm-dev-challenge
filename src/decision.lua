@@ -67,6 +67,12 @@ function D.teclado(tecla, R)
     return true
   end
 
+  -- Reintentar el envío desde la pantalla final, si falló.
+  if D.estado == "cerrado" and tecla == "return" and R and R.acuse == "falló" then
+    R.reintentarDecision()
+    return true
+  end
+
   if D.estado == "escribiendo" then
     if tecla == "backspace" then
       D.motivo = D.motivo:sub(1, -2)
@@ -137,16 +143,41 @@ function D.dibujar(R)
       love.graphics.setColor(0.72, 0.78, 0.88)
       love.graphics.printf("\nPulsa cualquier tecla para volver al juego.", x, y + 24, cw)
     else
-      love.graphics.printf(
-        D.eleccion == "parar" and "Entregado." or "Se acabó el tiempo.", x, y, cw)
-      love.graphics.setColor(0.72, 0.78, 0.88)
-      love.graphics.printf(
-        "\nEntrega lo que hay:\n\n" ..
-        "  · el juego\n" ..
-        "  · chat.md — la conversación entera con tu agente, sin editar\n" ..
-        "  · SUPUESTOS.md — lo que asumiste y lo que dejaste fuera\n" ..
-        "  · PLAN-SELLADO.md y REQUISITOS-RECIBIDOS.md, tal como están\n\n" ..
-        "Sin chat.md no se evalúa: es lo que más miramos.", x, y + 24, cw)
+      -- El acuse manda: esta pantalla no dice "entregado" hasta que el servidor
+      -- lo confirma, y si falló lo dice y ofrece reintentar.
+      local acuse = R and R.acuse
+
+      if acuse == "enviando" then
+        love.graphics.printf("Mandando tu decisión…", x, y, cw)
+        love.graphics.setColor(0.72, 0.78, 0.88)
+        love.graphics.printf("\nNo cierres todavía: tarda uno o dos segundos.", x, y + 26, cw)
+
+      elseif acuse == "falló" then
+        love.graphics.setColor(0.95, 0.55, 0.35)
+        love.graphics.printf("No pude mandar tu decisión.", x, y, cw)
+        love.graphics.setColor(0.72, 0.78, 0.88)
+        love.graphics.printf(
+          "\nTu trabajo está a salvo: lo que vale es el repo.\n\n" ..
+          "  [Enter]  reintentar\n\n" ..
+          "Si sigue fallando, súbelo igual y escríbenos: lo que contestaste está\n" ..
+          "escrito en REQUISITOS-RECIBIDOS.md.", x, y + 26, cw)
+
+      else
+        love.graphics.setColor(0.5, 0.85, 0.6)
+        love.graphics.printf(
+          D.eleccion == "parar" and "Entregado. Nos ha llegado."
+            or "Se acabó el tiempo. Tu decisión quedó registrada.", x, y, cw)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.printf("\nGracias por el rato. Ahora lo de siempre:", x, y + 26, cw)
+        love.graphics.setColor(0.72, 0.78, 0.88)
+        love.graphics.printf(
+          "\n  · sube el repo\n" ..
+          "  · chat.md — la conversación entera con tu agente, sin editar\n" ..
+          "  · SUPUESTOS.md — lo que asumiste y lo que dejaste fuera\n" ..
+          "  · PLAN-SELLADO.md y REQUISITOS-RECIBIDOS.md, tal como están\n\n" ..
+          "Sin chat.md no se evalúa: es lo que más miramos.\n\n" ..
+          "Te escribimos en ~5 días hábiles, pase lo que pase.", x, y + 52, cw)
+      end
     end
   end
 

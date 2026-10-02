@@ -25,6 +25,10 @@ local R = {
   -- primera respuesta: contar desde cero mientras tanto enseñaría 00:00:03 en una
   -- partida de media hora, y un reloj que miente es peor que no tener reloj.
   segundos = 0, empezadoEn = nil, horaInicio = nil, sincronizado = false,
+  -- El acuse de la decisión: nil mientras no se ha mandado, luego "enviando",
+  -- "recibido" o "falló". Decir "entregado" sin mirar si llegó es mentir en la
+  -- única pantalla donde no se puede mentir.
+  acuse = nil, ultimaDecision = nil,
   estado = "sin partida",   -- sin partida | abriendo | en marcha
   ultima = 0,
 }
@@ -115,8 +119,21 @@ function R.decidir(eleccion, motivo)
   if not R.run then return false end
   local limpio = (motivo or ""):gsub("[^%w%sáéíóúñÁÉÍÓÚÑ,.:;¿?¡!%-]", ""):gsub("%s+", "%%20")
   R.decision = eleccion
+  R.acuse = "enviando"
+  R.ultimaDecision = { eleccion = eleccion, motivo = limpio }
   pedir(base() .. "decidir&run=" .. R.run .. "&eleccion=" .. eleccion ..
-        "&motivo=" .. limpio, "ack")
+        "&motivo=" .. limpio, "decision")
+  return true
+end
+
+--- Volver a mandar la decisión si la primera no llegó. Se ofrece en pantalla:
+--- nadie debería quedarse con un "falló" y sin forma de arreglarlo.
+function R.reintentarDecision()
+  local d = R.ultimaDecision
+  if not d or not R.run then return false end
+  R.acuse = "enviando"
+  pedir(base() .. "decidir&run=" .. R.run .. "&eleccion=" .. d.eleccion ..
+        "&motivo=" .. d.motivo, "decision")
   return true
 end
 
@@ -176,14 +193,17 @@ function R.refrescar(dt)
       if not msg.cuerpo then
         R.error = msg.error or "sin respuesta del servidor"
         if msg.etiqueta == "empezar" then R.estado = "sin partida" end
+        if msg.etiqueta == "decision" then R.acuse = "falló" end
       else
         local d, err = json.decodificar(msg.cuerpo)
         if not d then
           R.error = "no entendí la respuesta: " .. tostring(err)
           if msg.etiqueta == "empezar" then R.estado = "sin partida" end
+          if msg.etiqueta == "decision" then R.acuse = "falló" end
         elseif d.ok == false then
           R.error = d.error or "el servidor dijo que no"
           if msg.etiqueta == "empezar" then R.estado = "sin partida" end
+          if msg.etiqueta == "decision" then R.acuse = "falló" end
           -- Una partida que el servidor no conoce no se arregla reintentando:
           -- se deja de preguntar y se dice qué hacer, en vez de insistir cada
           -- veinte segundos con un error que parece de red y no lo es.
@@ -194,6 +214,7 @@ function R.refrescar(dt)
           end
         else
           R.error = nil
+          if msg.etiqueta == "decision" then R.acuse = "recibido" end
           aplicar(msg.etiqueta, d)
         end
       end
