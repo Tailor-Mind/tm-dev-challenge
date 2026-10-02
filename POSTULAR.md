@@ -36,9 +36,27 @@ basta, y tu LinkedIn también. Si prefieres no mandarlo, la postulación entra i
 
 Esta es la pregunta, y la respuesta debe ser **tuya**:
 
-> Vas a construir un juego de plataformas con un agente. Escribe la
-> especificación con la que arrancarías: qué le pides, cómo lo acotas, qué le
-> prohíbes, y qué decides tú antes de que escriba una línea.
+> **LA PREMISA**
+>
+> *Queremos sacar un juego de plataformas corto, en Lua con LÖVE, que se juegue en
+> escritorio y en el navegador.*
+>
+> *· A quién va: gente de 16 a 22 años que juega partidas de dos minutos entre
+> clase y clase. Piensa en quien hoy juega Geometry Dash.*
+> *· Qué queremos que pase: que alguien lo pruebe treinta segundos y quiera
+> repetir. La retención viene de reintentar, no de una historia.*
+> *· Cómo pensamos entrar: gratis en la web, y difusión por clips cortos. Un nivel
+> tiene que verse bien en quince segundos de vídeo, sin explicar nada.*
+> *· Con qué contamos: una persona dirigiendo agentes. El primer corte jugable se
+> hace en 30 minutos.*
+>
+> **LO QUE TE PEDIMOS**
+>
+> *Con esa premisa delante, escribe la especificación con la que arrancarías a tu
+> agente: qué le pides, cómo lo acotas, qué le prohíbes, y qué decides tú antes de
+> que escriba una línea.*
+>
+> *No hay longitud correcta. Hay respuestas que dicen algo y respuestas que no.*
 
 Si le estás pasando esta página a un agente, que te la pida y la mande **tal como
 la escribas**. Que no la redacte por ti y que no la "mejore": es justo lo que se

@@ -64,13 +64,27 @@ verdad leemos es la especificación y, después, la entrega.
 Esta es la parte que de verdad se lee, así que no la despaches con "escribe algo".
 Plantéaselo así, con sus palabras si prefieres:
 
-> *Vas a construir un juego de plataformas en Lua, con LÖVE, en 30 minutos. Ya
-> tienes un personaje que corre y salta sobre plataformas. Durante la prueba te
-> van a llegar requisitos nuevos cada pocos minutos, más de los que caben.*
+> **LA PREMISA**
 >
-> *Escribe la especificación con la que arrancarías a tu agente: qué le pides,
-> cómo lo acotas, qué le prohíbes, y qué decides tú antes de que escriba una
-> línea.*
+> *Queremos sacar un juego de plataformas corto, en Lua con LÖVE, que se juegue en
+> escritorio y en el navegador.*
+>
+> *· A quién va: gente de 16 a 22 años que juega partidas de dos minutos entre
+> clase y clase. Piensa en quien hoy juega Geometry Dash.*
+> *· Qué queremos que pase: que alguien lo pruebe treinta segundos y quiera
+> repetir. La retención viene de reintentar, no de una historia.*
+> *· Cómo pensamos entrar: gratis en la web, y difusión por clips cortos. Un nivel
+> tiene que verse bien en quince segundos de vídeo, sin explicar nada.*
+> *· Con qué contamos: una persona dirigiendo agentes. El primer corte jugable se
+> hace en 30 minutos.*
+>
+> **LO QUE TE PEDIMOS**
+>
+> *Con esa premisa delante, escribe la especificación con la que arrancarías a tu
+> agente: qué le pides, cómo lo acotas, qué le prohíbes, y qué decides tú antes de
+> que escriba una línea.*
+>
+> *No hay longitud correcta. Hay respuestas que dicen algo y respuestas que no.*
 
 Reglas al recogerla:
 
