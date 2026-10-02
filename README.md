@@ -169,30 +169,28 @@ acabe en tu entrega con tu nombre.
 
 ## Postular: se hace desde aquí
 
-Clonas, abres tu agente en esta carpeta y escribes:
+Con Claude Code, abre tu agente en esta carpeta y escribe:
 
 ```
 /tm-apply
 ```
 
-Eso es todo. El repo trae el skill en `.claude/skills/tm-apply/`, así que tu
-agente lo ve nada más abrirlo. Te va a pedir tus datos y, sobre todo, **la
-especificación con la que arrancarías este reto**, que es lo que de verdad
-leemos. Te devuelve tu clave: guárdala, sin ella no se abre la partida.
+**¿Usas Codex, Cursor u otra cosa?** Pásale [`POSTULAR.md`](POSTULAR.md) a tu
+agente: tiene exactamente lo mismo, en texto plano y con los `curl`. No hace
+falta Claude Code ni para postular ni para el reto. Nosotros lo usamos a diario
+y al que entre le pagamos la herramienta que prefiera — no hay puntos por
+coincidir con nosotros.
 
-Funciona con Claude Code tal cual. Si usas otro asistente, ábrele
-`.claude/skills/tm-apply/SKILL.md` y pídele que lo siga — es un fichero de texto
-con un `curl` dentro, no hay magia.
+También está el [formulario](https://tailor-mind.github.io/tm-team-pub/es/apply/)
+y no resta nada.
 
-¿Y si no quieres usar un agente para postular? Está el
-[formulario](https://tailor-mind.github.io/tm-team-pub/es/apply/) y no resta
-nada. Pero el puesto consiste en dirigir agentes, así que empezar por ahí dice
-algo de cómo trabajas — y nosotros lo apuntamos.
+Te va a pedir tus datos y una cosa más: **la especificación con la que arrancarías
+este reto**. Esa respuesta es tuya, no de tu agente, y es de lo primero que
+leemos. Te devuelve la clave con la que se abre la partida.
 
-El otro skill es **`/tm-reto`**: pregunta al servidor qué requisitos llegaron,
-cuánto queda y registra la decisión del minuto 30. Léelo aunque no lo uses: dice
-exactamente qué se le puede pedir al servidor y qué no. Lo que **no** se puede:
-requisitos por adelantado, más de los que te tocaron, y volver a tirar los dados.
+**Esta tanda es solo para quienes viven en Perú** — el contrato es bajo ley
+peruana. Si estás fuera, puedes postular y lo guardamos, pero no avanzarás en
+esta ronda.
 
 ## Si rompes el juego, no rompes la prueba
 
