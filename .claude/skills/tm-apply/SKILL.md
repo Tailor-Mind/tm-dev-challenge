@@ -21,7 +21,7 @@ campo por campo.
 |---|---|---|
 | `nombre` | sí | Nombre y apellido |
 | `email` | sí | Por aquí llega todo lo demás |
-| `pais` | no | Dónde vive, para la vía de contratación |
+| `pais` | **sí** | Dónde vive. Esta tanda es solo Perú — lee abajo |
 | `linkedin` | no | URL |
 | `github` | no | URL |
 | `cv` | no | Un enlace. **No hace falta que sea público** — lee abajo |
@@ -29,6 +29,19 @@ campo por campo.
 | `lang` | no | `es` o `en`, para los correos. Por defecto `es` |
 | `repo` | no | Si ya hiciste el take-home, su URL |
 | `respuesta` | **sí** | Su especificación. Lee abajo: es lo que más miramos |
+
+## Antes de nada: esta tanda es solo Perú
+
+Pregúntale dónde vive **antes** de pedirle el CV o la especificación. El contrato
+es bajo ley peruana y en esta tanda no hay excepciones.
+
+Si vive fuera de Perú, díselo claro y en el momento: puede postular igual si
+quiere y la guardamos, pero **no va a avanzar en esta ronda**, y no debería
+hacer el reto de 30 minutos pensando que sí. En una ronda anterior alguien llegó
+hasta el final y lo cerramos por ubicación; eso fue culpa nuestra, no suya, y no
+se repite.
+
+No lo adivines por el prefijo del teléfono ni por el idioma. Pregunta.
 
 ## El CV, sin publicar nada
 
