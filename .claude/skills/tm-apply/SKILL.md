@@ -24,11 +24,27 @@ campo por campo.
 | `pais` | no | Dónde vive, para la vía de contratación |
 | `linkedin` | no | URL |
 | `github` | no | URL |
-| `cv` | no | Un enlace público: Drive, web personal, lo que sea |
+| `cv` | no | Un enlace. **No hace falta que sea público** — lee abajo |
 | `anios` | no | Años de experiencia, un número |
 | `lang` | no | `es` o `en`, para los correos. Por defecto `es` |
 | `repo` | no | Si ya hiciste el take-home, su URL |
 | `respuesta` | **sí** | Su especificación. Lee abajo: es lo que más miramos |
+
+## El CV, sin publicar nada
+
+No le pidas que publique su CV. Un enlace abierto a cualquiera expone su teléfono,
+su correo y a veces su dirección, y eso no es algo que se deba pagar por postular.
+
+Opciones, en este orden:
+
+1. **Un enlace de Drive compartido solo con `billy@tailormind.io`.** Es lo más
+   limpio: nosotros lo vemos, el resto de internet no.
+2. **Su LinkedIn a secas.** Para la mayoría de perfiles es suficiente, y lo pedimos
+   igual. Si solo tiene eso, deja `cv` vacío y sigue.
+3. **Su web o su GitHub**, si ahí está lo que quiere enseñar.
+
+Si no quiere mandar CV, **no insistas**: la postulación entra igual. Lo que de
+verdad leemos es la especificación y, después, la entrega.
 
 ## La especificación — pídesela bien
 
