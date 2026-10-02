@@ -5,8 +5,8 @@ camino, y no hace falta Claude Code para postular ni para hacer el reto.** Si
 trabajas con Codex, Cursor, Copilot o lo que sea, esta página es tu puerta:
 dásela a tu agente y tiene todo lo que el skill le daría.
 
-Nosotros usamos Claude Code a diario, y si entras te pagamos la herramienta que
-prefieras. No hay puntos por coincidir con nosotros.
+Nosotros usamos Claude Code y Codex, los dos. Si entras te pagamos la herramienta
+que prefieras. No hay puntos por coincidir con nosotros.
 
 ---
 

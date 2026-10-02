@@ -177,8 +177,8 @@ Con Claude Code, abre tu agente en esta carpeta y escribe:
 
 **¿Usas Codex, Cursor u otra cosa?** Pásale [`POSTULAR.md`](POSTULAR.md) a tu
 agente: tiene exactamente lo mismo, en texto plano y con los `curl`. No hace
-falta Claude Code ni para postular ni para el reto. Nosotros lo usamos a diario
-y al que entre le pagamos la herramienta que prefiera — no hay puntos por
+falta Claude Code ni para postular ni para el reto. Nosotros usamos Claude Code y
+Codex, y al que entre le pagamos la herramienta que prefiera — no hay puntos por
 coincidir con nosotros.
 
 También está el [formulario](https://tailor-mind.github.io/tm-team-pub/es/apply/)
