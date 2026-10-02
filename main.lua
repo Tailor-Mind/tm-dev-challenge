@@ -191,7 +191,7 @@ end
 function love.keypressed(tecla)
   if plan.teclado(tecla) then return end
   if decision.teclado(tecla, requisitos) then return end
-  decision.cerrarAviso()
+  decision.cerrarAviso(requisitos)
   if tecla == "tab" then panel = not panel end
   -- Terminar antes es un resultado, no una rendición: quien ya tiene lo suyo
   -- acabado y probado no gana nada mirando el reloj.

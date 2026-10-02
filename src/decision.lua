@@ -18,6 +18,8 @@ local D = {
   motivo = "",
   limite = 30,
   avisado = false,
+  decidido = false,     -- ya respondió: no se vuelve a preguntar nunca
+  ignorarTexto = false, -- la tecla que eligió opción no se escribe en el motivo
 }
 
 local function anotar(linea)
@@ -42,7 +44,9 @@ function D.actualizar(R)
   if not R.run then return end
   local base = R.base or 30
 
-  if D.estado == "jugando" and R.minutos >= base then
+  -- `decidido` es lo que corta el bucle: sin él, al volver al juego después de
+  -- responder, el minuto seguía siendo >= 30 y la pregunta reaparecía sola.
+  if D.estado == "jugando" and not D.decidido and R.minutos >= base then
     D.estado = "preguntando"
   end
 
@@ -57,7 +61,9 @@ function D.teclado(tecla, R)
   if D.estado == "preguntando" then
     if tecla == "1" then D.eleccion = "parar" end
     if tecla == "2" then D.eleccion = "seguir" end
-    if D.eleccion then D.estado = "escribiendo" end
+    -- LÖVE manda la misma pulsación por `keypressed` y por `textinput`. Sin esto,
+    -- el 1 con el que eliges aparece escrito en el motivo.
+    if D.eleccion then D.estado, D.ignorarTexto = "escribiendo", true end
     return true
   end
 
@@ -74,13 +80,14 @@ function D.teclado(tecla, R)
 end
 
 function D.texto(t)
+  if D.ignorarTexto then D.ignorarTexto = false; return end
   if D.estado == "escribiendo" and #D.motivo < 160 then D.motivo = D.motivo .. t end
 end
 
 function D.enviar(R)
   D.limite = D.antes and (R.minutos or 0)
     or ((D.eleccion == "seguir") and ((R.base or 30) + (R.prorroga or 10)) or (R.base or 30))
-  D.estado = "cerrado"
+  D.estado, D.decidido = "cerrado", true
 
   anotar(("\n---\n\n## Minuto %d — la decisión\n\n**%s**\n\n> %s\n")
     :format(R.minutos or 0,
@@ -130,7 +137,8 @@ function D.dibujar(R)
       love.graphics.setColor(0.72, 0.78, 0.88)
       love.graphics.printf("\nPulsa cualquier tecla para volver al juego.", x, y + 24, cw)
     else
-      love.graphics.printf("Se acabó el tiempo.", x, y, cw)
+      love.graphics.printf(
+        D.eleccion == "parar" and "Entregado." or "Se acabó el tiempo.", x, y, cw)
       love.graphics.setColor(0.72, 0.78, 0.88)
       love.graphics.printf(
         "\nEntrega lo que hay:\n\n" ..
@@ -150,9 +158,13 @@ function D.bloquea()
   return D.estado == "preguntando" or D.estado == "escribiendo"
 end
 
---- Un aviso para volver al juego después de decidir.
-function D.cerrarAviso()
-  if D.estado == "cerrado" then D.estado = "jugando" end
+--- Volver al juego después de decidir. Solo si queda tiempo: cuando ya no
+--- queda, la pantalla final se queda puesta en vez de dejarte jugar con el
+--- reloj agotado y volver a preguntarte.
+function D.cerrarAviso(R)
+  if D.estado ~= "cerrado" then return end
+  local quedan = D.limite - ((R and R.minutos) or 0)
+  if quedan > 0 then D.estado = "jugando" end
 end
 
 return D
