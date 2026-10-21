@@ -87,13 +87,18 @@ Responde con tu **clave**:
 { "ok": true, "clave": "K7QM2F", "mensaje": "..." }
 ```
 
-Guárdala. Con ella se abre el reto:
+**Esa misma clave te llega al correo**, con las instrucciones completas y el
+plazo. Así que no depende de que copies bien esta respuesta: si cierras la
+terminal, está en tu bandeja. Si no aparece en unos minutos, mira en spam.
+
+Con ella se abre el reto:
 
 ```bash
 love . --run tu@correo.com --clave K7QM2F
 ```
 
-Si pierdes la clave, te la reenviamos por correo: escribe a `billy@tailormind.io`.
+Si aun así no la encuentras, escribe a `billy@tailormind.io` y te la
+reenviamos — no se pierde nada por eso.
 
 ## Durante el reto, sin skill
 

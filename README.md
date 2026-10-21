@@ -188,6 +188,12 @@ Te va a pedir tus datos y una cosa más: **la especificación con la que arranca
 este reto**. Esa respuesta es tuya, no de tu agente, y es de lo primero que
 leemos. Te devuelve la clave con la que se abre la partida.
 
+**La clave llega por dos vías: en la respuesta y en tu correo**, da igual por
+dónde postules. El correo trae además cómo arrancar, qué entregar y hasta
+cuándo. Si no lo ves en unos minutos, mira en spam; y si no está, escribe a
+`billy@tailormind.io`. Sin clave no se abre la partida, pero perderla no te
+cuesta el reto.
+
 **Esta tanda es solo para quienes viven en Perú** — el contrato es bajo ley
 peruana. Si estás fuera, puedes postular y lo guardamos, pero no avanzarás en
 esta ronda.

@@ -1,3 +1,10 @@
 *.love
 .DS_Store
 .tm-run
+
+# Artefactos de una partida real: son del candidato, no del repo. Se colaron
+# dos veces ya, y la segunda llevaba 30 requisitos del banco a un repo publico.
+PLAN-SELLADO.md
+REQUISITOS-RECIBIDOS.md
+chat.md
+SUPUESTOS.md

@@ -123,8 +123,13 @@ Respuesta esperada:
 ```
 
 **Esa `clave` es importante:** sin ella no se puede abrir la partida del reto.
-Dásela a la persona tal cual, dile que la guarde, y recuérdale que el comando de
-arriba es con el que arranca.
+Dásela a la persona tal cual y recuérdale que el comando de arriba es con el que
+arranca.
+
+Dile también que **le llega por correo**, con las instrucciones completas y el
+plazo. Esto no es un detalle de cortesía: tú la imprimes una vez y la sesión se
+cierra, así que el correo es el sitio donde la clave de verdad vive. Si no le
+aparece en unos minutos, que mire spam antes de escribir a `billy@tailormind.io`.
 
 Si devuelve `{"ok":false,"error":"faltan: email"}`, pide lo que falte y reintenta.
 Postular dos veces no duplica nada: la segunda vez actualiza la fila que ya hay.
